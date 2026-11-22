@@ -1,0 +1,191 @@
+<title>Unit Trap Options</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Lexend:wght@400;500;600&display=swap">
+<style>
+/* Layout: three option cards stacked (side by side on wide screens), each a working mini demo of the same triangle question. */
+:root{
+  --bg:#eef3f1; --card:#ffffff; --ink:#15302b; --muted:#5b726c;
+  --accent:#0f8a6f; --accent-ink:#ffffff; --hl:#ffe27a; --hl-ink:#3a2e00;
+  --line:#d3e0dc; --good:#1b8a4a; --slip:#c77700; --bad:#c23b3b; --soft:#e3efeb;
+  --display:"Bricolage Grotesque",system-ui,sans-serif;
+  --body:"Lexend",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1a18; --card:#16241f; --ink:#e4efeb; --muted:#9db3ac;
+  --accent:#3cc59f; --accent-ink:#06231b; --hl:#7a6510; --hl-ink:#fff6cf;
+  --line:#2a3d37; --good:#4fd08a; --slip:#f0a63a; --bad:#ff7b7b; --soft:#1d302a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1a18; --card:#16241f; --ink:#e4efeb; --muted:#9db3ac;
+  --accent:#3cc59f; --accent-ink:#06231b; --hl:#7a6510; --hl-ink:#fff6cf;
+  --line:#2a3d37; --good:#4fd08a; --slip:#f0a63a; --bad:#ff7b7b; --soft:#1d302a; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:20px}
+h1{font-family:var(--display);font-weight:800;font-size:1.7rem;margin:0}
+.lead{margin:0;color:var(--muted);max-width:60ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.tag{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:600}
+h2{font-family:var(--display);font-size:1.3rem;margin:0}
+.idea{margin:0;font-size:.92rem;color:var(--muted)}
+.q{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px}
+.q p{margin:0}
+svg.tri{width:100%;max-width:240px;margin:0 auto;display:block;color:var(--ink)}
+svg.tri text{fill:currentColor;font-family:var(--body);font-size:14px;font-weight:600}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input.num{font:inherit;font-size:1.15rem;width:110px;padding:8px 12px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.unit{font-weight:600;font-size:1.1rem}
+.chip{font:inherit;font-weight:600;padding:8px 16px;border-radius:999px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.chip.on{border-color:var(--accent);background:var(--soft)}
+.btn{font:inherit;font-weight:600;padding:12px 16px;border-radius:12px;border:none;cursor:pointer;background:var(--accent);color:var(--accent-ink);width:100%}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.tabs{display:flex;gap:6px}
+.tabs .chip{padding:6px 12px;font-size:.9rem}
+.w{background:none;border:none;font:inherit;color:inherit;padding:1px 2px;cursor:pointer;border-radius:4px}
+.w.found{background:var(--hl);color:var(--hl-ink);font-weight:600}
+.fb{border-radius:12px;padding:12px 14px;border:2px solid;font-size:.95rem}
+.fb.good{border-color:var(--good)} .fb.slip{border-color:var(--slip)} .fb.bad{border-color:var(--bad)}
+.fb b{display:block}
+.pts{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.pc{font-size:.88rem;margin:0;padding-left:18px;color:var(--muted)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+
+<div class="wrap">
+  <h1>Unit Trap: 3 options</h1>
+  <p class="lead">Same triangle question, three ways to stop the "cm" giving it away. Try each one, then pick a favourite.</p>
+
+  <div class="grid">
+
+    <!-- A -->
+    <section class="card" id="A">
+      <span class="tag">Option A</span>
+      <h2>Level up</h2>
+      <p class="idea">Start easy. Each level hides more help.</p>
+      <div class="tabs">
+        <button class="chip on" data-lv="1">Level 1</button>
+        <button class="chip" data-lv="2">Level 2</button>
+        <button class="chip" data-lv="3">Level 3</button>
+      </div>
+      <div class="q">
+        <svg class="tri" viewBox="0 0 240 190"><polygon points="120,15 30,150 210,150" fill="none" stroke="currentColor" stroke-width="2"/><text x="108" y="45">60°</text><text x="44" y="142">60°</text><line x1="30" y1="170" x2="210" y2="170" stroke="currentColor"/><text x="98" y="187">36 mm</text></svg>
+        <p>Calculate the perimeter of this triangle.</p>
+        <p id="A-txt"></p>
+        <div class="row" id="A-ans"></div>
+      </div>
+      <button class="btn" id="A-go">Check</button>
+      <div id="A-fb"></div>
+      <ul class="pc"><li>Level 1: "cm" shown by the box</li><li>Level 2: you choose the unit</li><li>Level 3: you type the unit yourself</li></ul>
+    </section>
+
+    <!-- B -->
+    <section class="card" id="B">
+      <span class="tag">Option B</span>
+      <h2>Pick the unit, pay for misses</h2>
+      <p class="idea">Tap the key words. At the end, pick mm, cm or m. A wrong unit costs more if you never highlighted it.</p>
+      <div class="q">
+        <svg class="tri" viewBox="0 0 240 190"><polygon points="120,15 30,150 210,150" fill="none" stroke="currentColor" stroke-width="2"/><text x="108" y="45">60°</text><text x="44" y="142">60°</text><line x1="30" y1="170" x2="210" y2="170" stroke="currentColor"/><text x="98" y="187">36 mm</text></svg>
+        <p id="B-txt"></p>
+        <div class="row"><input class="num" id="B-num" inputmode="decimal" aria-label="Answer">
+          <button class="chip" data-u="mm">mm</button><button class="chip" data-u="cm">cm</button><button class="chip" data-u="m">m</button></div>
+      </div>
+      <span class="pts" id="B-pts">⭐ 0 points</span>
+      <button class="btn" id="B-go">Check</button>
+      <div id="B-fb"></div>
+    </section>
+
+    <!-- C -->
+    <section class="card" id="C">
+      <span class="tag">Option C</span>
+      <h2>Spot it first</h2>
+      <p class="idea">Before any maths, answer one quick question about the details. Then the box has no unit at all.</p>
+      <div class="q">
+        <svg class="tri" viewBox="0 0 240 190"><polygon points="120,15 30,150 210,150" fill="none" stroke="currentColor" stroke-width="2"/><text x="108" y="45">60°</text><text x="44" y="142">60°</text><line x1="30" y1="170" x2="210" y2="170" stroke="currentColor"/><text x="98" y="187">36 mm</text></svg>
+        <p>Calculate the perimeter of this triangle.</p>
+        <p>Give your answer in centimetres.</p>
+      </div>
+      <div id="C-step"></div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+const ANS=10.8;
+function judge(v,u){
+  if(Math.abs(v-ANS)<1e-9&&u==="cm")return["good","Nailed it ✅","10.8 cm is right."];
+  if(Math.abs(v-108)<1e-9&&(u==="cm"||u===""))return["slip","Unit slip 🟠","108 is in mm. It asked for cm: 108 ÷ 10 = 10.8 cm."];
+  if(Math.abs(v-108)<1e-9&&u==="mm")return["slip","Right maths, wrong unit 🟠","108 mm is true, but it asked for cm."];
+  if(Math.abs(v-ANS)<1e-9)return["slip","Check the unit 🟠","10.8 is right, but in cm, not "+u+"."];
+  return["bad","Let's learn it 🔴","All angles 60° → all sides 36 mm. 36 × 3 = 108 mm = 10.8 cm."];
+}
+const fb=(el,[c,t,m])=>el.innerHTML=`<div class="fb ${c}"><b>${t}</b>${m}</div>`;
+const norm=s=>{s=s.trim().toLowerCase();if(/^(cm|centimet(re|er)s?)$/.test(s))return"cm";if(/^(mm|millimet(re|er)s?)$/.test(s))return"mm";if(/^(m|met(re|er)s?)$/.test(s))return"m";return s};
+
+/* A */
+(()=>{
+  let lv=1,unit="";
+  const txt=document.getElementById("A-txt"),ans=document.getElementById("A-ans"),out=document.getElementById("A-fb");
+  function draw(){
+    unit="";out.innerHTML="";
+    txt.innerHTML=lv===1?"Give your answer in <b>centimetres</b>.":"Give your answer in centimetres.";
+    if(lv===1)ans.innerHTML=`<input class="num" id="A-n" inputmode="decimal" aria-label="Answer"><span class="unit">cm</span>`;
+    if(lv===2)ans.innerHTML=`<input class="num" id="A-n" inputmode="decimal" aria-label="Answer"><button class="chip" data-u="mm">mm</button><button class="chip" data-u="cm">cm</button><button class="chip" data-u="m">m</button>`;
+    if(lv===3)ans.innerHTML=`<input class="num" id="A-n" inputmode="decimal" aria-label="Answer"><input class="num" id="A-u" style="width:90px" placeholder="unit" aria-label="Unit">`;
+    ans.querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>{unit=b.dataset.u;ans.querySelectorAll("[data-u]").forEach(x=>x.classList.toggle("on",x===b))});
+  }
+  document.querySelectorAll("#A [data-lv]").forEach(b=>b.onclick=()=>{lv=+b.dataset.lv;document.querySelectorAll("#A [data-lv]").forEach(x=>x.classList.toggle("on",x===b));draw()});
+  document.getElementById("A-go").onclick=()=>{
+    const v=parseFloat(document.getElementById("A-n").value);
+    let u=lv===1?"cm":lv===2?unit:norm(document.getElementById("A-u").value);
+    if(isNaN(v)){out.innerHTML=`<div class="fb bad"><b>Type a number first</b></div>`;return}
+    if(!u){out.innerHTML=`<div class="fb bad"><b>Pick a unit too</b></div>`;return}
+    fb(out,judge(v,u));
+  };
+  draw();
+})();
+
+/* B */
+(()=>{
+  const words=["Calculate","the","perimeter","of","this","triangle.","Give","your","answer","in","centimetres."];
+  const keys=new Set(["perimeter","centimetres."]);
+  let tapped=new Set(),pts=0,unit="";
+  const txt=document.getElementById("B-txt"),ptsEl=document.getElementById("B-pts"),out=document.getElementById("B-fb");
+  function draw(){
+    txt.innerHTML=words.map((w,n)=>`<button class="w ${tapped.has(n)&&keys.has(w)?'found':''}" data-n="${n}">${w}</button>`).join(" ");
+    txt.querySelectorAll(".w").forEach(b=>b.onclick=()=>{const n=+b.dataset.n;if(tapped.has(n))return;tapped.add(n);pts+=keys.has(words[n])?1:-1;pts=Math.max(0,pts);ptsEl.textContent=`⭐ ${pts} points`;draw()});
+  }
+  document.querySelectorAll("#B [data-u]").forEach(b=>b.onclick=()=>{unit=b.dataset.u;document.querySelectorAll("#B [data-u]").forEach(x=>x.classList.toggle("on",x===b))});
+  document.getElementById("B-go").onclick=()=>{
+    const v=parseFloat(document.getElementById("B-num").value);
+    if(isNaN(v)||!unit){out.innerHTML=`<div class="fb bad"><b>Type a number and pick a unit</b></div>`;return}
+    const r=judge(v,unit);
+    const spotted=[...tapped].some(n=>words[n]==="centimetres.");
+    if(r[0]==="good")pts+=5;
+    else if(unit!=="cm"){const cost=spotted?1:3;pts=Math.max(0,pts-cost);r[2]+=spotted?" (−1, you did spot it)":" (−3, you never highlighted \"centimetres\")";}
+    ptsEl.textContent=`⭐ ${pts} points`;fb(out,r);
+  };
+  draw();
+})();
+
+/* C */
+(()=>{
+  const step=document.getElementById("C-step");
+  function one(){
+    step.innerHTML=`<p style="margin:0;font-weight:600">Quick check: what unit must your answer be in?</p>
+      <div class="row"><button class="chip" data-u="mm">mm</button><button class="chip" data-u="cm">cm</button><button class="chip" data-u="m">m</button></div><div id="C-fb1"></div>`;
+    step.querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>{
+      if(b.dataset.u==="cm"){two();}
+      else document.getElementById("C-fb1").innerHTML=`<div class="fb slip"><b>Look again 👀</b>The diagram is in mm, but read the last line.</div>`;
+    });
+  }
+  function two(){
+    step.innerHTML=`<div class="fb good"><b>Spotted ✅ +1</b>Answer must be in cm.</div>
+      <div class="row"><input class="num" id="C-n" inputmode="decimal" aria-label="Answer"><span class="unit" style="color:var(--muted)">?</span></div>
+      <button class="btn" id="C-go">Check</button><div id="C-fb2"></div>`;
+    document.getElementById("C-go").onclick=()=>{const v=parseFloat(document.getElementById("C-n").value);if(isNaN(v))return;fb(document.getElementById("C-fb2"),judge(v,"cm"));};
+  }
+  one();
+})();
+</script>
