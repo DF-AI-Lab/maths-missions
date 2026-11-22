@@ -31,10 +31,16 @@ h1{font-family:var(--display);font-weight:800;font-size:1.6rem;margin:0;letter-s
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:20px}
 .step{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
 .q p{margin:0 0 10px}
-.k{background:none;border:none;font:inherit;color:inherit;padding:0 2px;cursor:pointer;
-   border-bottom:2px dashed var(--muted);border-radius:3px}
-.k.found{background:var(--hl);color:var(--hl-ink);border-bottom-color:transparent;font-weight:600}
-.k:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.w{background:none;border:none;font:inherit;color:inherit;padding:1px 2px;margin:0 -1px;cursor:pointer;border-radius:4px}
+.w:hover{background:var(--soft)}
+.w.found{background:var(--hl);color:var(--hl-ink);font-weight:600}
+.w.miss{opacity:.45;text-decoration:line-through}
+.w.missed{outline:2px dashed var(--slip);outline-offset:1px;font-weight:600}
+.w:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.diagram{position:relative;max-width:320px;width:100%;aspect-ratio:320/240;margin:0 auto}
+.diagram svg{position:absolute;inset:0;width:100%;height:100%}
+.diagram .w{position:absolute;transform:translate(-50%,-50%);font-size:.95rem;white-space:nowrap}
+.pop{font-size:.85rem;color:var(--muted);min-height:1.4em;text-align:center}
 .finder{background:var(--soft);border-radius:12px;padding:12px 16px;font-size:.95rem;display:flex;justify-content:space-between;gap:10px;align-items:center}
 .finder b{font-variant-numeric:tabular-nums}
 .ans{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -71,6 +77,7 @@ h1{font-family:var(--display);font-weight:800;font-size:1.6rem;margin:0;letter-s
     <span class="pill g">Right <b id="tg">0</b></span>
     <span class="pill s">Slips <b id="ts">0</b></span>
     <span class="pill b">Learn it <b id="tb">0</b></span>
+    <span class="pill">⭐ Points <b id="tp">0</b></span>
   </div>
 
   <div class="card" id="card"></div>
@@ -79,31 +86,24 @@ h1{font-family:var(--display);font-weight:800;font-size:1.6rem;margin:0;letter-s
 </div>
 
 <script>
+/* [[word]] = key detail. Words are all tappable; key ones are not marked until found. */
 const Q = [
-  { text:[
-      ["Two angles are ", ["60°","Both angles are 60°"], " so this is a triangle with one side of ", ["36 mm","Side is in mm"], "."],
-      ["Calculate the ", ["perimeter","Perimeter = all sides added"], " of this triangle."],
-      ["Give your answer in ", ["centimetres","Answer must be in cm"], "."]
-    ],
+  { diagram:true,
+    labels:[{t:"60°",x:47,y:28,key:true},{t:"60°",x:27,y:72,key:true},{t:"36 mm",x:46,y:96,key:true},{t:"Not drawn to scale",x:82,y:12,key:false}],
+    text:["Calculate the [[perimeter]] of this triangle.","Give your answer in [[centimetres.]]"],
     unit:"cm", answer:10.8,
     slips:{108:"You got 108 mm. Great maths! But it asked for cm. 108 ÷ 10 = 10.8 cm."},
-    hint:"All angles 60° → all sides 36 mm. 36 × 3 = 108 mm. Then ÷ 10 for cm.",
-    checks:["I found the unit it wants (cm)","I changed units if I needed to","My answer makes sense (a small triangle)"]
+    hint:"Two 60° angles means the third is 60° too, so all sides are 36 mm. 36 × 3 = 108 mm, then ÷ 10 for cm.",
+    checks:["I found the unit it wants","I changed units if I needed to","My answer makes sense for the size"]
   },
-  { text:[
-      ["Here is a formula: ", ["a = 4b²","b is squared, then × 4"]],
-      ["Work out a when ", ["b = 3","Put 3 in for b"], "."]
-    ],
+  { text:["Here is a formula:","[[a = 4b²]]","Work out the value of a when [[b = 3]]"],
     unit:"", answer:36,
     slips:{144:"You did 4 × 3 first, then squared. Square first! 3² = 9, then 4 × 9 = 36.",
            46:"Close! 3² = 9 (not 3 × 2). Then 4 × 9 = 36."},
     hint:"Powers first: 3² = 3 × 3 = 9. Then 4 × 9.",
     checks:["I did the power (²) first","3² means 3 × 3, not 3 × 2","I checked my times table"]
   },
-  { text:[
-      ["It takes ", ["9 builders","Start: 9 people"], " ", ["60 days","Start: 60 days"], " to build a house."],
-      ["How long for ", ["6 builders","Fewer people → more days"], "?"]
-    ],
+  { text:["It takes [[9]] builders [[60]] days to build a house.","How long would it take for [[6]] builders to complete the same house?"],
     unit:"days", answer:90,
     slips:{40:"Fewer builders can't be faster! 9 × 60 = 540 days of work. 540 ÷ 6 = 90."},
     hint:"Total work = 9 × 60 = 540. Share between 6: 540 ÷ 6.",
@@ -111,48 +111,103 @@ const Q = [
   }
 ];
 
-let i=0, found=new Set(), phase="read", tally={g:0,s:0,b:0};
+let i=0, phase="read", tally={g:0,s:0,b:0}, points=0, taps={}, popMsg="";
 const card=document.getElementById("card");
+const $=id=>document.getElementById(id);
 
-function keyCount(q){return q.text.flat().filter(x=>Array.isArray(x)).length}
+function tokens(q){
+  const out=[];
+  q.text.forEach((line,li)=>{
+    line.split(/(\[\[.*?\]\]|\s+)/).filter(Boolean).forEach(tok=>{
+      if(/^\s+$/.test(tok)) out.push({space:true,line:li});
+      else if(tok.startsWith("[[")) out.push({t:tok.slice(2,-2),key:true,line:li});
+      else out.push({t:tok,key:false,line:li});
+    });
+  });
+  return out;
+}
+function allTokens(q){
+  const t=tokens(q).filter(x=>!x.space);
+  return (q.labels||[]).map(l=>({...l,label:true})).concat(t);
+}
+function keyTotal(q){return allTokens(q).filter(x=>x.key).length}
+function foundCount(q){return allTokens(q).filter((x,n)=>x.key&&taps[n]==="found").length}
+
+function wordBtn(tok,n,style=""){
+  let cls="w";
+  if(taps[n]==="found")cls+=" found";
+  else if(taps[n]==="miss")cls+=" miss";
+  else if(phase!=="read"&&tok.key)cls+=" missed";
+  return `<button class="${cls}" data-n="${n}" ${style}>${tok.t}</button>`;
+}
 
 function render(){
-  const q=Q[i], total=keyCount(q);
-  document.getElementById("dots").innerHTML=Q.map((_,n)=>`<span class="dot ${n<=i?'on':''}"></span>`).join("");
-  let k=0;
-  const qHtml=q.text.map(line=>"<p>"+line.map(part=>{
-    if(!Array.isArray(part)) return part;
-    const id=k++; return `<button class="k ${found.has(id)?'found':''}" data-k="${id}" title="${part[1]}">${part[0]}</button>`;
-  }).join("")+"</p>").join("");
+  const q=Q[i];
+  $("dots").innerHTML=Q.map((_,n)=>`<span class="dot ${n<=i?'on':''}"></span>`).join("");
+  const all=allTokens(q);
+  let n=0, html="";
+  if(q.diagram){
+    html+=`<div class="diagram"><svg viewBox="0 0 320 240" aria-hidden="true">
+      <polygon points="150,30 40,190 260,190" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M135,52 A26,26 0 0 0 165,52" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M58,163 A30,30 0 0 1 72,190" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="40" y1="215" x2="260" y2="215" stroke="currentColor" stroke-width="1.5"/>
+      <polygon points="40,215 48,211 48,219" fill="currentColor"/><polygon points="260,215 252,211 252,219" fill="currentColor"/>
+    </svg>`;
+    q.labels.forEach(l=>{html+=wordBtn(all[n],n,`style="left:${l.x}%;top:${l.y}%"`);n++});
+    html+=`</div>`;
+  }
+  const toks=tokens(q); let lines=[];
+  toks.forEach(tok=>{
+    lines[tok.line]=lines[tok.line]||"";
+    if(tok.space)lines[tok.line]+=" ";
+    else {lines[tok.line]+=wordBtn(all[n],n);n++}
+  });
+  html+=lines.map(l=>`<p>${l}</p>`).join("");
 
-  let body=`<div class="step">Question ${i+1} of ${Q.length}</div><div class="q">${qHtml}</div>`;
+  const total=keyTotal(q), found=foundCount(q);
+  let body=`<div class="step">Question ${i+1} of ${Q.length}</div><div class="q">${html}</div>`;
 
   if(phase==="read"){
-    body+=`<div class="finder"><span>🔍 Tap the key details</span><b>${found.size} / ${total}</b></div>
-      <button class="btn" id="go" ${found.size<total?'disabled':''}>I've found them all</button>`;
-  } else if(phase==="answer"){
-    body+=`<div class="ans"><input id="a" inputmode="decimal" placeholder="Answer" aria-label="Your answer"><span class="unit">${q.unit}</span></div>
-      <button class="btn" id="check">Check ✋</button>`;
-  } else if(phase==="check"){
-    body+=`<div class="ans"><input id="a" value="${window._a||''}" disabled aria-label="Your answer"><span class="unit">${q.unit}</span></div>
-      <div class="step">Tick each one before you submit</div>
-      <div class="checks">${q.checks.map((c,n)=>`<label><input type="checkbox" id="c${i}_${n}" class="cb"><span>${c}</span></label>`).join("")}</div>
-      <button class="btn" id="submit" disabled>Submit</button>
-      <button class="btn ghost" id="back">Go back and change it</button>`;
+    body+=`<div class="finder"><span>🔍 Tap the key details for bonus points</span><b>${found} found</b></div>
+      <div class="pop" id="pop">${popMsg}</div>
+      <button class="btn" id="go">I'm ready to answer</button>`;
   } else {
-    body+=window._fb+`<button class="btn" id="next">${i<Q.length-1?'Next mission →':'Start again'}</button>`;
+    const missed=total-found;
+    const bonusLine = missed===0 ? `🌟 You found all ${total} details!` : `You found ${found} of ${total}. The <span style="outline:2px dashed var(--slip);padding:0 4px;border-radius:4px">dashed</span> ones were missed.`;
+    body+=`<div class="finder"><span>${bonusLine}</span></div>`;
+    if(phase==="answer"){
+      body+=`<div class="ans"><input id="a" inputmode="decimal" aria-label="Your answer"><span class="unit">${q.unit}</span></div>
+        <button class="btn" id="check">Check ✋</button>`;
+    } else if(phase==="check"){
+      body+=`<div class="ans"><input id="a" value="${window._a||''}" disabled aria-label="Your answer"><span class="unit">${q.unit}</span></div>
+        <div class="step">Tick each one before you submit</div>
+        <div class="checks">${q.checks.map((c,k)=>`<label><input type="checkbox" id="c${i}_${k}" class="cb"><span>${c}</span></label>`).join("")}</div>
+        <button class="btn" id="submit" disabled>Submit</button>
+        <button class="btn ghost" id="back">Go back and change it</button>`;
+    } else {
+      body+=window._fb+`<button class="btn" id="next">${i<Q.length-1?'Next mission →':'Start again'}</button>`;
+    }
   }
   card.innerHTML=body;
   wire();
 }
 
+function setTally(){["g","s","b"].forEach(t=>$("t"+t).textContent=tally[t]);$("tp").textContent=points}
+
 function wire(){
-  const q=Q[i];
-  card.querySelectorAll(".k").forEach(b=>b.onclick=()=>{
-    if(phase!=="read")return; found.add(+b.dataset.k); render();
+  const q=Q[i], all=allTokens(q);
+  card.querySelectorAll(".w").forEach(b=>b.onclick=()=>{
+    if(phase!=="read")return;
+    const n=+b.dataset.n; if(taps[n])return;
+    if(all[n].key){taps[n]="found";points+=1;popMsg="+1 ⭐ good spot";}
+    else{taps[n]="miss";points=Math.max(0,points-1);popMsg="Not a key detail (−1)";}
+    setTally();render();
   });
-  const $=id=>document.getElementById(id);
-  if($("go")) $("go").onclick=()=>{phase="answer";render();$("a")?.focus()};
+  if($("go")) $("go").onclick=()=>{
+    if(foundCount(q)===keyTotal(q)){points+=3;}
+    setTally();phase="answer";popMsg="";render();$("a")?.focus();
+  };
   if($("check")) $("check").onclick=()=>{const v=$("a").value.trim(); if(!v){$("a").focus();return} window._a=v; phase="check"; render()};
   if($("back")) $("back").onclick=()=>{phase="answer";render();const a=$("a");a.value=window._a;a.focus()};
   card.querySelectorAll(".cb").forEach(c=>c.onchange=()=>{
@@ -161,14 +216,17 @@ function wire(){
   if($("submit")) $("submit").onclick=()=>{
     const v=parseFloat(window._a);
     let cls,title,msg;
-    if(Math.abs(v-q.answer)<1e-9){cls="good";title="Nailed it ✅";msg="Checking paid off.";tally.g++}
+    if(Math.abs(v-q.answer)<1e-9){cls="good";title="Nailed it ✅ +5";msg="Checking paid off.";tally.g++;points+=5}
     else if(q.slips[v]){cls="slip";title="Slip, not a mistake 🟠";msg=q.slips[v];tally.s++}
     else{cls="bad";title="Let's learn this one 🔴";msg=q.hint+` Answer: ${q.answer} ${q.unit}.`;tally.b++}
     window._fb=`<div class="fb ${cls}"><h3>${title}</h3><p>${msg}</p></div>`;
-    ["g","s","b"].forEach(t=>document.getElementById("t"+t).textContent=tally[t]);
-    phase="done"; render();
+    setTally(); phase="done"; render();
   };
-  if($("next")) $("next").onclick=()=>{i=(i+1)%Q.length; if(i===0)tally={g:0,s:0,b:0},["g","s","b"].forEach(t=>document.getElementById("t"+t).textContent=0); found=new Set(); phase="read"; window._a=""; render()};
+  if($("next")) $("next").onclick=()=>{
+    i=(i+1)%Q.length;
+    if(i===0){tally={g:0,s:0,b:0};points=0}
+    setTally(); taps={}; phase="read"; window._a=""; render();
+  };
 }
 render();
 </script>
