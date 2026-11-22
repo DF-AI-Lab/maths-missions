@@ -82,6 +82,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .tag{display:inline-block;font-size:.75rem;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--slip);color:var(--card);letter-spacing:.05em;text-transform:uppercase}
 .ok{color:var(--good);font-weight:700} .no{color:var(--bad);font-weight:700}
 .pound{font-size:1.25rem;font-weight:600}
+.wrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;padding:10px 14px;border:1.5px solid var(--line);border-radius:12px}
+.wrow .ans{flex-wrap:nowrap}
+.wrow .lbl{color:var(--muted);font-size:.85rem}
+.wrow .val{font-weight:600;font-variant-numeric:tabular-nums}
+.wrow input.u{width:96px}
+.wrow .mini{grid-column:1 / -1;justify-self:start}
 </style>
 
 <div class="wrap">
@@ -201,10 +207,20 @@ function unitInput(k,disabled){
   if(lv===2)return it.units.map(u=>disabled?`<span class="chip">${u}</span>`:`<button class="chip ${st.picked===u?'on':''}" data-u="${u}">${u}</button>`).join("");
   return`<input class="u" id="u" placeholder="unit" aria-label="Unit" value="${st.unit&&!disabled?st.unit:""}" ${disabled?"disabled":""}>`;
 }
-function answersPanel(){
-  return`<div class="step">Your mission answers</div><div class="list">${ITEMS.slice(0,NM).map((it,k)=>`
-    <div class="row"><span><span class="lbl">Mission ${k+1} · ${it.title}</span><br><span class="val">${S[k].num||"—"} ${S[k].num?(it.fixed||S[k].unit):""}</span></span>
-    ${detective?`<button class="mini" data-recheck="${k}">Recheck</button>`:""}</div>`).join("")}</div>`;
+const PRICES=[{l:"Fence",p:"£9 per m"},{l:"Slabs",p:"£24 a pack"},{l:"Gardeners",p:"£120 a day"},{l:"Turf",p:"£4 per m²"}];
+const W={c:["","","",""],total:""};
+function workPanel(){
+  const rows=ITEMS.slice(0,NM).map((it,k)=>`
+    <div class="wrow">
+      <span><span class="lbl">Mission ${k+1} · ${PRICES[k].l}</span><br>
+      <span class="val">${S[k].num||"—"} ${S[k].num?(it.fixed||S[k].unit):""}</span> <span class="lbl">× ${PRICES[k].p}</span></span>
+      <span class="ans" style="gap:6px"><span class="pound">£</span><input class="u" id="w${k}" inputmode="decimal" aria-label="${PRICES[k].l} cost" value="${W.c[k]}"></span>
+      ${detective?`<button class="mini" data-recheck="${k}">Recheck mission</button>`:""}
+    </div>`).join("");
+  return `<div class="step">Working out</div><div class="list">${rows}
+    <div class="wrow"><span class="lbl">Total spent</span><span class="ans" style="gap:6px"><span class="pound">£</span><input class="u" id="wt" inputmode="decimal" aria-label="Total spent" value="${W.total}"></span></div>
+    <div class="wrow"><span class="lbl">£1,200 − total<br><b>= money left</b></span><span class="ans" style="gap:6px"><span class="pound">£</span><input class="u" id="a" inputmode="decimal" aria-label="Money left" value="${S[NM].num}"></span></div>
+  </div>`;
 }
 
 function render(){
@@ -222,9 +238,8 @@ function render(){
   const hintBtn=st.hint?"":`<button class="btn ghost" id="hint">💡 Hint (−5)</button>`;
 
   if(it.boss){
-    b+=answersPanel();
-    b+=`<div class="ans"><span class="pound">£</span><input id="a" inputmode="decimal" aria-label="Money left" value="${st.num}"></div>
-        ${bossMsg}<button class="btn" id="boss">Submit to the boss 👹</button>${hintBtn}`;
+    b+=workPanel();
+    b+=`${bossMsg}<button class="btn" id="boss">Submit to the boss 👹</button>${hintBtn}`;
     return paint(b);
   }
   b+=`<div class="ans"><input id="a" inputmode="decimal" placeholder="Answer" aria-label="Your answer" value="${st.num}">${unitInput(k,false)}</div>
@@ -249,7 +264,7 @@ function renderDone(){
 function wire(){
   const k=recheck!==null?recheck:view; if(view==="done"){ $("again").onclick=()=>location.reload(); return; }
   const it=ITEMS[k],st=S[k],toks=all(it);
-  const keep=()=>{if($("a"))st.num=$("a").value;if($("u"))st.unit=$("u").value};
+  const keep=()=>{if($("a"))st.num=$("a").value;if($("u"))st.unit=$("u").value;for(let j=0;j<4;j++)if($("w"+j))W.c[j]=$("w"+j).value;if($("wt"))W.total=$("wt").value};
   card.querySelectorAll(".w").forEach(el=>el.onclick=()=>{
     if(st.phase!=="read")return; const n=+el.dataset.n; if(st.taps[n])return; keep();
     if(toks[n].key){st.taps[n]="found";addScore(1);popMsg="+1 good spot"}else{st.taps[n]="miss";addScore(-1);popMsg="Not a key detail (−1)"}
@@ -271,13 +286,13 @@ function wire(){
     st.first={ok:isRight(k)}; view++; render(); window.scrollTo(0,0);
   };
   if($("boss"))$("boss").onclick=()=>{
-    st.num=$("a").value.trim();
+    keep(); st.num=st.num.trim();
     if(st.phase==="read"){ if(found(k)===keyTotal(it)&&!st.bonus){st.bonus=true;addScore(3)} st.phase="saved"; popMsg=""; }
     if(isNaN(num(st.num))){bossMsg=`<p class="err">Type an amount first.</p>`;return render()}
     bossTries++;
     if(Math.abs(num(st.num)-it.answer)<1e-9){view="done";return render()}
     addScore(-10);detective=true;
-    bossMsg=`<div class="fb bad"><h3>❌ Not right (−10)</h3><p>No clues. Something is off in your missions or your boss sums. Tap <b>Recheck</b> to dig back in.</p></div>`;
+    bossMsg=`<div class="fb bad"><h3>❌ Something doesn't add up (−10)</h3><p>You're <b>£${Math.abs(num(st.num)-it.answer).toLocaleString()} ${num(st.num)>it.answer?"too high":"too low"}</b>. 🕵️ Which part could be out by that much? Check your working, or tap <b>Recheck mission</b>.</p></div>`;
     render();
   };
 }
