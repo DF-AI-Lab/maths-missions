@@ -71,11 +71,22 @@ h1{font-family:var(--display);font-weight:800;font-size:1.6rem;margin:0;letter-s
 .note{font-size:.85rem;color:var(--muted);text-align:center;margin:0}
 button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:no-preference){.card{animation:in .25s ease}@keyframes in{from{transform:translateY(6px);opacity:.6}}}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--line);border-radius:12px;flex-wrap:wrap}
+.row .val{font-weight:600;font-variant-numeric:tabular-nums}
+.row .lbl{color:var(--muted);font-size:.9rem}
+.mini{font:inherit;font-weight:600;font-size:.9rem;padding:6px 12px;border-radius:10px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.hintbox{background:var(--soft);border-left:4px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:.92rem}
+.big{font-family:var(--display);font-size:3rem;font-weight:800;margin:0;line-height:1;font-variant-numeric:tabular-nums}
+.boss{border-color:var(--slip)}
+.tag{display:inline-block;font-size:.75rem;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--slip);color:var(--card);letter-spacing:.05em;text-transform:uppercase}
+.ok{color:var(--good);font-weight:700} .no{color:var(--bad);font-weight:700}
+.pound{font-size:1.25rem;font-weight:600}
 </style>
 
 <div class="wrap">
   <header>
-    <h1>Maths Missions</h1>
+    <h1>Garden Makeover</h1>
     <div class="dots" id="dots"></div>
   </header>
   <div class="bar">
@@ -85,10 +96,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
       <button class="chip" data-lv="3">Level 3</button>
     </div>
     <div class="tally">
-      <span class="pill">⭐ <b id="tp">0</b></span>
-      <span class="pill g">✓ <b id="tg">0</b></span>
-      <span class="pill s">Slips <b id="ts">0</b></span>
-      <span class="pill b">Learn <b id="tb">0</b></span>
+      <span class="pill">🎯 Score <b id="sc">100</b></span>
+      <span class="pill s">Hints <b id="hu">0</b></span>
+      <span class="pill b">Boss tries <b id="bt">0</b></span>
     </div>
   </div>
   <div class="card" id="card"></div>
@@ -96,173 +106,193 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 </div>
 
 <script>
-/* In text, [[word|why it matters]] marks a key detail. Nothing marks it on screen until found. */
-const Q = [
-  { diagram:true,
-    labels:[
-      {t:"60°",x:47,y:28,why:"Two angles are 60°, so the third is 60° too. All angles equal means all sides are equal."},
-      {t:"60°",x:27,y:72,why:"Two angles are 60°, so the third is 60° too. All angles equal means all sides are equal."},
-      {t:"36 mm",x:46,y:96,why:"This is the side length, and it is in mm, not cm. You will need to convert."},
-      {t:"Not drawn to scale",x:82,y:12}
-    ],
-    text:["Calculate the [[perimeter|Perimeter means add up all the sides.]] of this triangle.",
-          "Give your answer in [[centimetres.|The answer must be in cm. The diagram is in mm, so you must convert: ÷ 10.]]"],
-    unit:"cm", units:["mm","cm","m"], answer:10.8,
-    slips:{108:"You got 108 mm. Great maths! But it asked for cm. 108 ÷ 10 = 10.8 cm."},
-    hint:"All angles 60° → all sides 36 mm. 36 × 3 = 108 mm, then ÷ 10 = 10.8 cm.",
-    checks:["I found the unit it wants","I changed units if I needed to","My answer makes sense for the size"]
-  },
-  { text:["Here is a formula:",
-          "[[a = 4b²|The ² means square b FIRST, then times by 4.]]",
-          "Work out the value of a when [[b = 3|This is the number you swap in for b.]]"],
-    unit:"", answer:36,
-    slips:{144:"You did 4 × 3 first, then squared. Square first! 3² = 9, then 4 × 9 = 36.",
-           46:"Close! 3² = 9 (not 3 × 2). Then 4 × 9 = 36."},
-    hint:"Powers first: 3² = 3 × 3 = 9. Then 4 × 9 = 36.",
-    checks:["I did the power (²) first","3² means 3 × 3, not 3 × 2","I checked my times table"]
-  },
-  { text:["It takes [[9|Starting number of builders.]] builders [[60|How many days the 9 builders take.]] days to build a house.",
-          "How long would it take for [[6|Fewer builders, so it will take LONGER, not shorter.]] builders to complete the [[same|Same house = same total work, just shared by fewer people.]] house?"],
-    unit:"days", units:["hours","days","weeks"], answer:90,
-    slips:{40:"Fewer builders can't be faster! 9 × 60 = 540 days of work. 540 ÷ 6 = 90."},
-    hint:"Total work = 9 × 60 = 540. Share it between 6: 540 ÷ 6 = 90 days.",
-    checks:["Fewer workers means MORE days","I found the total work first","My answer went UP"]
-  }
+/* [[word|why]] marks a key detail. Nothing marks it until found. */
+const ITEMS = [
+  { title:"The fence",
+    rect:{labels:[{t:"12 m",x:50,y:7,why:"Long side. It's a rectangle, so the opposite side is 12 m too."},
+                  {t:"800 cm",x:91,y:50,why:"This side is in cm, not m! 800 cm = 8 m."},
+                  {t:"Garden",x:50,y:50}]},
+    text:["A fence goes [[all the way round|All the way round = perimeter. Add all 4 sides.]] the garden.",
+          "Work out how much fence is needed.",
+          "Give your answer in [[metres.|Answer in m. One side is in cm, so convert it first (÷ 100).]]"],
+    unit:"m", units:["cm","m","km"], answer:40,
+    hint:"Change 800 cm into metres first. Then add all four sides.",
+    checks:["I changed cm into m first","I added all 4 sides","My answer is in metres"] },
+  { title:"The patio",
+    text:["A patio needs [[45|How many slabs you need.]] slabs.",
+          "Slabs are sold in [[packs of 8.|8 slabs in each pack, so divide.]]",
+          "How many packs do you need to [[buy?|You can't buy part of a pack, so round UP.]]"],
+    fixed:"packs", answer:6,
+    hint:"45 ÷ 8 = 5.6… You can't buy 0.6 of a pack.",
+    checks:["I divided slabs by the pack size","I rounded UP (no half packs)"] },
+  { title:"The gardeners",
+    text:["It takes [[2|Starting number of gardeners.]] gardeners [[6|Days the 2 gardeners take.]] days to do the garden.",
+          "How many days would it take [[3|More gardeners, so FEWER days.]] gardeners?"],
+    unit:"days", units:["hours","days","weeks"], answer:4,
+    hint:"Total work = 2 × 6 days of work. Share it between 3.",
+    checks:["More workers means FEWER days","I found the total work first"] },
+  { title:"The lawn",
+    rect:{labels:[{t:"6 m",x:50,y:7,why:"Length of the lawn."},{t:"5 m",x:91,y:50,why:"Width of the lawn."},{t:"Lawn",x:50,y:50}]},
+    text:["New turf will cover the [[whole lawn.|Covering a surface = AREA, not perimeter.]]",
+          "Work out the [[area|Area = length × width.]] of the lawn."],
+    unit:"m²", units:["m","m²","cm²"], answer:30,
+    hint:"Area = length × width. Units are squared.",
+    checks:["I found the area, not the perimeter","My unit is squared (m²)"] },
+  { title:"Boss: the budget", boss:true,
+    text:["Fence costs [[£9 per metre.|Times by your fence answer (Mission 1).]]",
+          "Slabs cost [[£24 a pack.|Times by your packs answer (Mission 2).]]",
+          "Gardeners cost [[£120 a day.|Times by your days answer (Mission 3).]]",
+          "Turf costs [[£4 per m².|Times by your area answer (Mission 4).]]",
+          "Your budget is [[£1,200.|Take the total cost away from this.]]",
+          "Using your mission answers, how much money is [[left?|Left = budget minus everything you spend.]]"],
+    answer:96,
+    hint:"Work out 4 costs: fence, slabs, gardeners, turf. Add them up. Then take that from £1,200." }
 ];
+const NM = ITEMS.length-1;
 const LVNOTE={1:"Level 1: the unit is shown next to the box.",2:"Level 2: you pick the unit.",3:"Level 3: you type the unit yourself."};
 
-let i=0, lv=1, phase="read", tally={g:0,s:0,b:0}, points=0, taps={}, open=null, popMsg="", pickedUnit="", A={num:"",unit:""}, fbHtml="", err="";
+let lv=1, score=100, hints=0, bossTries=0, view=0, detective=false, recheck=null, bossMsg="", err="", popMsg="", open=null;
+const S = ITEMS.map(()=>({taps:{},phase:"read",num:"",unit:"",picked:"",first:null,hint:false,bonus:false}));
 const card=document.getElementById("card"), $=id=>document.getElementById(id);
 
-function lines(q){
-  return q.text.map(line=>line.split(/(\[\[.*?\]\]|\s+)/).filter(Boolean).map(tok=>{
-    if(/^\s+$/.test(tok)) return {space:true};
-    if(tok.startsWith("[[")){const [t,why]=tok.slice(2,-2).split("|");return {t,why,key:true}}
-    return {t:tok};
-  }));
+const lines=it=>it.text.map(line=>line.split(/(\[\[.*?\]\]|\s+)/).filter(Boolean).map(tok=>{
+  if(/^\s+$/.test(tok))return{space:true};
+  if(tok.startsWith("[[")){const[t,why]=tok.slice(2,-2).split("|");return{t,why,key:true}}
+  return{t:tok};
+}));
+const all=it=>((it.rect&&it.rect.labels)||[]).map(l=>({...l,key:!!l.why})).concat(lines(it).flat().filter(x=>!x.space));
+const keyTotal=it=>all(it).filter(x=>x.key).length;
+const found=k=>all(ITEMS[k]).filter((x,n)=>x.key&&S[k].taps[n]==="found").length;
+const num=s=>parseFloat(String(s).replace(/[£,\s]/g,""));
+const unitOf=it=>it.fixed||it.unit||"";
+function normUnit(s){
+  s=(s||"").trim().toLowerCase();
+  const map=[["m²",/^(m2|m²|sq ?m|square met(re|er)s?)$/],["cm²",/^(cm2|cm²|sq ?cm)$/],["cm",/^(cm|cms|centimet(re|er)s?)$/],["km",/^(km|kilomet(re|er)s?)$/],["m",/^(m|met(re|er)s?)$/],["days",/^(days?|d)$/],["hours",/^(hours?|hrs?|h)$/],["weeks",/^(weeks?|wks?)$/]];
+  for(const[k,r]of map)if(r.test(s))return k; return s;
 }
-function all(q){ return (q.labels||[]).map(l=>({...l,key:!!l.why})).concat(lines(q).flat().filter(x=>!x.space)); }
-const keyTotal=q=>all(q).filter(x=>x.key).length;
-const foundCount=q=>all(q).filter((x,n)=>x.key&&taps[n]==="found").length;
+const isRight=k=>{const it=ITEMS[k],st=S[k];return Math.abs(num(st.num)-it.answer)<1e-9&&(!it.unit||st.unit===it.unit)};
+const setTally=()=>{$("sc").textContent=score;$("hu").textContent=hints;$("bt").textContent=bossTries};
+const addScore=d=>{score=Math.max(0,score+d);setTally()};
 
-function word(tok,n,style=""){
-  let cls="w", extra="";
-  if(taps[n]==="found") cls+=" found";
-  else if(taps[n]==="miss") cls+=" miss";
-  else if(phase!=="read"&&tok.key){cls+=" missed"; extra=`<button class="info" data-why="${n}" aria-label="Why this matters">i</button>`;}
-  const b=`<button class="w ${cls}" data-n="${n}">${tok.t}</button>${extra}`;
+function word(k,tok,n,style=""){
+  const st=S[k]; let cls="w",extra="";
+  if(st.taps[n]==="found")cls+=" found";
+  else if(st.taps[n]==="miss")cls+=" miss";
+  else if(st.phase!=="read"&&tok.key){cls+=" missed";extra=`<button class="info" data-why="${n}" aria-label="Why this matters">i</button>`}
+  const b=`<button class="${cls}" data-n="${n}">${tok.t}</button>${extra}`;
   return style?`<span class="lab" ${style}>${b}</span>`:b;
+}
+function questionHtml(k){
+  const it=ITEMS[k],toks=all(it); let n=0,h="";
+  if(it.rect){
+    h+=`<div class="diagram" style="aspect-ratio:320/200"><svg viewBox="0 0 320 200" aria-hidden="true"><rect x="50" y="30" width="220" height="140" fill="none" stroke="currentColor" stroke-width="2"/></svg>`;
+    it.rect.labels.forEach(l=>{h+=word(k,toks[n],n,`style="left:${l.x}%;top:${l.y}%"`);n++});
+    h+=`</div>`;
+  }
+  h+=lines(it).map(line=>"<p>"+line.map(t=>t.space?" ":word(k,toks[n],n++)).join("")+"</p>").join("");
+  if(open!==null&&toks[open]&&toks[open].why&&S[k].phase!=="read")h+=`<div class="why"><b>Why "${toks[open].t}" matters</b>${toks[open].why}</div>`;
+  return h;
+}
+function unitInput(k,disabled){
+  const it=ITEMS[k],st=S[k];
+  if(it.boss)return"";
+  if(it.fixed)return`<span class="unit">${it.fixed}</span>`;
+  if(lv===1)return`<span class="unit">${it.unit}</span>`;
+  if(lv===2)return it.units.map(u=>disabled?`<span class="chip">${u}</span>`:`<button class="chip ${st.picked===u?'on':''}" data-u="${u}">${u}</button>`).join("");
+  return`<input class="u" id="u" placeholder="unit" aria-label="Unit" value="${st.unit&&!disabled?st.unit:""}" ${disabled?"disabled":""}>`;
+}
+function answersPanel(){
+  return`<div class="step">Your mission answers</div><div class="list">${ITEMS.slice(0,NM).map((it,k)=>`
+    <div class="row"><span><span class="lbl">Mission ${k+1} · ${it.title}</span><br><span class="val">${S[k].num||"—"} ${S[k].num?(it.fixed||S[k].unit):""}</span></span>
+    ${detective?`<button class="mini" data-recheck="${k}">Recheck</button>`:""}</div>`).join("")}</div>`;
 }
 
 function render(){
-  const q=Q[i], toks=all(q);
-  $("dots").innerHTML=Q.map((_,n)=>`<span class="dot ${n<=i?'on':''}"></span>`).join("");
+  $("dots").innerHTML=ITEMS.map((_,n)=>`<span class="dot ${n<=Math.min(view,NM)?'on':''}"></span>`).join("");
   $("lvnote").textContent=LVNOTE[lv];
-  let n=0, html="";
-  if(q.diagram){
-    html+=`<div class="diagram"><svg viewBox="0 0 320 240" aria-hidden="true">
-      <polygon points="150,30 40,190 260,190" fill="none" stroke="currentColor" stroke-width="2"/>
-      <path d="M135,52 A26,26 0 0 0 165,52" fill="none" stroke="currentColor" stroke-width="1.5"/>
-      <path d="M58,163 A30,30 0 0 1 72,190" fill="none" stroke="currentColor" stroke-width="1.5"/>
-      <line x1="40" y1="215" x2="260" y2="215" stroke="currentColor" stroke-width="1.5"/>
-      <polygon points="40,215 48,211 48,219" fill="currentColor"/><polygon points="260,215 252,211 252,219" fill="currentColor"/>
-    </svg>`;
-    q.labels.forEach(l=>{html+=word(toks[n],n,`style="left:${l.x}%;top:${l.y}%"`);n++});
-    html+=`</div>`;
+  if(view==="done")return renderDone();
+  const k=recheck!==null?recheck:view, it=ITEMS[k], st=S[k], total=keyTotal(it), f=found(k);
+  let b=it.boss?`<span class="tag">Boss question</span>`:`<div class="step">${recheck!==null?"Rechecking ":""}Mission ${k+1} of ${NM} · ${it.title}</div>`;
+  b+=`<div class="q">${questionHtml(k)}</div>`;
+
+  if(st.phase==="read"){
+    b+=it.boss?"":`<div class="ans" style="opacity:.5"><input disabled placeholder="Answer" aria-label="Answer preview">${unitInput(k,true)}</div>`;
+    b+=`<div class="finder"><span>🔍 Tap any word or number you think matters</span><b>${f} found</b></div>
+       <div class="pop">${popMsg}</div><button class="btn" id="go">I'm ready to answer</button>`;
+    return paint(b);
   }
-  html+=lines(q).map(line=>"<p>"+line.map(tok=>tok.space?" ":word(toks[n],n++)).join("")+"</p>").join("");
-  if(open!==null&&toks[open]) html+=`<div class="why"><b>Why "${toks[open].t}" matters</b>${toks[open].why}</div>`;
+  b+=`<div class="finder"><span>${f===total?`🌟 All ${total} key details found`:`Found ${f} of ${total}. Tap <b>i</b> on the dashed ones to see why they matter.`}</span></div>`;
+  if(st.hint)b+=`<div class="hintbox"><b>Hint:</b> ${it.hint}</div>`;
+  const hintBtn=st.hint?"":`<button class="btn ghost" id="hint">💡 Hint (−5)</button>`;
 
-  const total=keyTotal(q), found=foundCount(q);
-  let body=`<div class="step">Mission ${i+1} of ${Q.length}</div><div class="q">${html}</div>`;
-
-  if(phase==="read"){
-    const prev = !q.unit ? "" : lv===1 ? `<span class="unit">${q.unit}</span>` : lv===2 ? q.units.map(u=>`<span class="chip">${u}</span>`).join("") : `<input class="u" placeholder="unit" disabled aria-label="Unit preview">`;
-    body+=`<div class="ans" style="opacity:.5"><input disabled placeholder="Answer" aria-label="Answer preview">${prev}</div>
-      <div class="finder"><span>🔍 Tap any word or number you think matters</span><b>${found} found</b></div>
-      <div class="pop">${popMsg}</div>
-      <button class="btn" id="go">I'm ready to answer</button>`;
-  } else {
-    const missed=total-found;
-    body+=`<div class="finder"><span>${missed===0?`🌟 All ${total} found! +3 bonus`:`Found ${found} of ${total}. Tap <b>i</b> on the dashed ones to see why they matter.`}</span></div>`;
-    if(phase==="answer"){
-      let unitPart="";
-      if(q.unit){
-        if(lv===1) unitPart=`<span class="unit">${q.unit}</span>`;
-        if(lv===2) unitPart=q.units.map(u=>`<button class="chip ${pickedUnit===u?'on':''}" data-u="${u}">${u}</button>`).join("");
-        if(lv===3) unitPart=`<input class="u" id="u" placeholder="unit" aria-label="Unit" value="${A.unit}">`;
-      }
-      body+=`<div class="ans"><input id="a" inputmode="decimal" aria-label="Your answer" value="${A.num}">${unitPart}</div>
+  if(it.boss){
+    b+=answersPanel();
+    b+=`<div class="ans"><span class="pound">£</span><input id="a" inputmode="decimal" aria-label="Money left" value="${st.num}"></div>
+        ${bossMsg}<button class="btn" id="boss">Submit to the boss 👹</button>${hintBtn}`;
+    return paint(b);
+  }
+  if(st.phase==="answer"){
+    b+=`<div class="ans"><input id="a" inputmode="decimal" aria-label="Your answer" value="${st.num}">${unitInput(k,false)}</div>
         ${err?`<p class="err">${err}</p>`:""}
-        <button class="btn" id="check">Check ✋</button>`;
-    } else if(phase==="check"){
-      body+=`<div class="ans"><input value="${A.num}" disabled aria-label="Your answer"><span class="unit">${A.unit}</span></div>
-        <div class="step">Tick each one before you submit</div>
-        <div class="checks">${q.checks.map((c,k)=>`<label><input type="checkbox" id="c${i}_${k}" class="cb"><span>${c}</span></label>`).join("")}</div>
-        <button class="btn" id="submit" disabled>Submit</button>
-        <button class="btn ghost" id="back">Go back and change it</button>`;
-    } else {
-      body+=fbHtml+`<button class="btn" id="next">${i<Q.length-1?'Next mission →':'Start again'}</button>`;
-    }
+        <button class="btn" id="check">${recheck!==null?"Save and back to the boss":"Check ✋"}</button>${hintBtn}`;
+  } else if(st.phase==="check"){
+    b+=`<div class="ans"><input value="${st.num}" disabled aria-label="Your answer"><span class="unit">${it.fixed||st.unit}</span></div>
+        <div class="step">Tick each one before you save</div>
+        <div class="checks">${it.checks.map((c,j)=>`<label><input type="checkbox" id="c${k}_${j}" class="cb"><span>${c}</span></label>`).join("")}</div>
+        <button class="btn" id="save" disabled>Save answer</button><button class="btn ghost" id="back">Go back and change it</button>`;
   }
-  card.innerHTML=body;
-  wire();
+  paint(b);
 }
+function paint(b){card.innerHTML=b;card.classList.toggle("boss",view===NM);wire()}
 
-const setTally=()=>{["g","s","b"].forEach(t=>$("t"+t).textContent=tally[t]);$("tp").textContent=points};
-function normUnit(s){
-  s=(s||"").trim().toLowerCase();
-  const map={cm:/^(cm|cms|centimet(re|er)s?)$/,mm:/^(mm|millimet(re|er)s?)$/,m:/^(m|met(re|er)s?)$/,days:/^(days?|d)$/,hours:/^(hours?|hrs?|h)$/,weeks:/^(weeks?|wks?)$/};
-  for(const k in map) if(map[k].test(s)) return k;
-  return s;
+function renderDone(){
+  const rows=ITEMS.slice(0,NM).map((it,k)=>`<div class="row"><span class="lbl">Mission ${k+1} · ${it.title}</span>
+    <span>first try ${S[k].first&&S[k].first.ok?'<span class="ok">✓</span>':'<span class="no">✗</span>'}</span></div>`).join("");
+  paint(`<span class="tag">Mission complete</span><div><p class="big">${score}</p><p class="lbl" style="margin:4px 0 0">final score</p></div>
+    <div class="list"><div class="row"><span class="lbl">Boss tries</span><span class="val">${bossTries}</span></div>
+    <div class="row"><span class="lbl">Hints used</span><span class="val">${hints}</span></div></div>
+    <div class="step">How your first answers did</div><div class="list">${rows}</div>
+    <button class="btn" id="again">Play again</button>`);
 }
 
 function wire(){
-  const q=Q[i], toks=all(q);
-  card.querySelectorAll(".w").forEach(b=>b.onclick=()=>{
-    if(phase!=="read")return;
-    const n=+b.dataset.n; if(taps[n])return;
-    if(toks[n].key){taps[n]="found";points+=1;popMsg="+1 ⭐ good spot";}
-    else{taps[n]="miss";points=Math.max(0,points-1);popMsg="Not a key detail (−1)";}
-    setTally();render();
+  const k=recheck!==null?recheck:view; if(view==="done"){ $("again").onclick=()=>location.reload(); return; }
+  const it=ITEMS[k],st=S[k],toks=all(it);
+  card.querySelectorAll(".w").forEach(el=>el.onclick=()=>{
+    if(st.phase!=="read")return; const n=+el.dataset.n; if(st.taps[n])return;
+    if(toks[n].key){st.taps[n]="found";addScore(1);popMsg="+1 good spot"}else{st.taps[n]="miss";addScore(-1);popMsg="Not a key detail (−1)"}
+    render();
   });
-  card.querySelectorAll(".info").forEach(b=>b.onclick=()=>{const n=+b.dataset.why;open=open===n?null:n;render();});
-  card.querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>{A.num=$("a").value;pickedUnit=b.dataset.u;render();});
-  if($("go")) $("go").onclick=()=>{ if(foundCount(q)===keyTotal(q)) points+=3; setTally(); phase="answer"; popMsg=""; render(); $("a")?.focus(); };
-  if($("check")) $("check").onclick=()=>{
-    A.num=$("a").value.trim();
-    A.unit = !q.unit ? "" : lv===1 ? q.unit : lv===2 ? pickedUnit : normUnit($("u").value);
-    if(lv===3&&q.unit) A.unit=A.unit||"";
-    if(!A.num||isNaN(parseFloat(A.num))){err="Type a number first.";render();return}
-    if(q.unit&&!A.unit){err="Add a unit too.";render();return}
-    err=""; phase="check"; render();
+  card.querySelectorAll(".info").forEach(el=>el.onclick=()=>{const n=+el.dataset.why;open=open===n?null:n;render()});
+  card.querySelectorAll("[data-u]").forEach(el=>el.onclick=()=>{st.num=$("a").value;st.picked=el.dataset.u;render()});
+  card.querySelectorAll("[data-recheck]").forEach(el=>el.onclick=()=>{S[NM].num=$("a").value;recheck=+el.dataset.recheck;S[recheck].phase="answer";open=null;err="";render()});
+  if($("go"))$("go").onclick=()=>{if(found(k)===keyTotal(it)&&!st.bonus){st.bonus=true;addScore(3)}st.phase="answer";popMsg="";open=null;render();$("a")?.focus()};
+  if($("hint"))$("hint").onclick=()=>{if($("a"))st.num=$("a").value;st.hint=true;hints++;addScore(-5);render()};
+  if($("check"))$("check").onclick=()=>{
+    st.num=$("a").value.trim();
+    st.unit=it.fixed?"":lv===1?it.unit:lv===2?st.picked:normUnit($("u").value);
+    if(isNaN(num(st.num))){err="Type a number first.";return render()}
+    if(it.unit&&!st.unit){err="Add a unit too.";return render()}
+    err="";
+    if(recheck!==null){st.phase="saved";recheck=null;open=null;return render()}
+    st.phase="check";render();
   };
-  if($("back")) $("back").onclick=()=>{phase="answer";render();$("a").focus()};
-  card.querySelectorAll(".cb").forEach(c=>c.onchange=()=>{ $("submit").disabled=![...card.querySelectorAll(".cb")].every(x=>x.checked); });
-  if($("submit")) $("submit").onclick=()=>{
-    const v=parseFloat(A.num), unitOk=!q.unit||A.unit===q.unit;
-    const unitKey=toks.findIndex(t=>t.key&&t.t==="centimetres.");
-    let cls,title,msg;
-    if(Math.abs(v-q.answer)<1e-9&&unitOk){cls="good";title="Nailed it ✅ +5";msg="Checking paid off.";tally.g++;points+=5}
-    else if(Math.abs(v-q.answer)<1e-9){
-      const spotted=taps[unitKey]==="found", cost=spotted?1:3;
-      points=Math.max(0,points-cost); cls="slip"; title="Right number, wrong unit 🟠";
-      msg=`It asked for ${q.unit}, you put ${A.unit}. ${spotted?"(−1, you did spot it)":"(−3, you never highlighted the unit word)"}`; tally.s++;
-    }
-    else if(q.slips[v]){cls="slip";title="Slip, not a mistake 🟠";msg=q.slips[v];tally.s++}
-    else{cls="bad";title="Let's learn this one 🔴";msg=q.hint;tally.b++}
-    fbHtml=`<div class="fb ${cls}"><h3>${title}</h3><p>${msg}</p></div>`;
-    setTally(); phase="done"; render();
-  };
-  if($("next")) $("next").onclick=()=>{
-    i=(i+1)%Q.length;
-    if(i===0){tally={g:0,s:0,b:0};points=0}
-    taps={}; open=null; phase="read"; pickedUnit=""; A={num:"",unit:""}; err=""; setTally(); render();
+  if($("back"))$("back").onclick=()=>{st.phase="answer";render()};
+  card.querySelectorAll(".cb").forEach(c=>c.onchange=()=>{$("save").disabled=![...card.querySelectorAll(".cb")].every(x=>x.checked)});
+  if($("save"))$("save").onclick=()=>{st.phase="saved";st.first={ok:isRight(k)};view++;open=null;render();window.scrollTo(0,0)};
+  if($("boss"))$("boss").onclick=()=>{
+    st.num=$("a").value.trim();
+    if(isNaN(num(st.num))){bossMsg=`<p class="err">Type an amount first.</p>`;return render()}
+    bossTries++;
+    if(Math.abs(num(st.num)-it.answer)<1e-9){view="done";return render()}
+    addScore(-10);detective=true;
+    bossMsg=`<div class="fb bad"><h3>❌ Not right (−10)</h3><p>No clues. Something is off in your missions or your boss sums. Tap <b>Recheck</b> to dig back in.</p></div>`;
+    render();
   };
 }
 document.querySelectorAll("#levels .chip").forEach(b=>b.onclick=()=>{
-  lv=+b.dataset.lv; document.querySelectorAll("#levels .chip").forEach(x=>x.classList.toggle("on",x===b));
-  pickedUnit=""; A.unit=""; render();
+  lv=+b.dataset.lv;document.querySelectorAll("#levels .chip").forEach(x=>x.classList.toggle("on",x===b));
+  S.forEach(s=>{s.picked=""});render();
 });
 render();
 </script>
