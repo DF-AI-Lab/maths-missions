@@ -215,13 +215,9 @@ function render(){
   let b=it.boss?`<span class="tag">Boss question</span>`:`<div class="step">${recheck!==null?"Rechecking ":""}Mission ${k+1} of ${NM} · ${it.title}</div>`;
   b+=`<div class="q">${questionHtml(k)}</div>`;
 
-  if(st.phase==="read"){
-    b+=it.boss?"":`<div class="ans" style="opacity:.5"><input disabled placeholder="Answer" aria-label="Answer preview">${unitInput(k,true)}</div>`;
-    b+=`<div class="finder"><span>🔍 Tap any word or number you think matters</span><b>${f} found</b></div>
-       <div class="pop">${popMsg}</div><button class="btn" id="go">I'm ready to answer</button>`;
-    return paint(b);
-  }
-  b+=`<div class="finder"><span>${f===total?`🌟 All ${total} key details found`:`Found ${f} of ${total}. Tap <b>i</b> on the dashed ones to see why they matter.`}</span></div>`;
+  const open1=st.phase==="read";
+  b+=`<div class="finder"><span>${open1?"🔍 Tap any word or number you think matters (optional)":f===total?`🌟 All ${total} key details found`:`Found ${f} of ${total}. Tap <b>i</b> on the dashed ones to see why they matter.`}</span>${open1?`<b>${f} found</b>`:""}</div>`;
+  if(open1&&popMsg)b+=`<div class="pop">${popMsg}</div>`;
   if(st.hint)b+=`<div class="hintbox"><b>Hint:</b> ${it.hint}</div>`;
   const hintBtn=st.hint?"":`<button class="btn ghost" id="hint">💡 Hint (−5)</button>`;
 
@@ -231,16 +227,11 @@ function render(){
         ${bossMsg}<button class="btn" id="boss">Submit to the boss 👹</button>${hintBtn}`;
     return paint(b);
   }
-  if(st.phase==="answer"){
-    b+=`<div class="ans"><input id="a" inputmode="decimal" aria-label="Your answer" value="${st.num}">${unitInput(k,false)}</div>
-        ${err?`<p class="err">${err}</p>`:""}
-        <button class="btn" id="check">${recheck!==null?"Save and back to the boss":"Check ✋"}</button>${hintBtn}`;
-  } else if(st.phase==="check"){
-    b+=`<div class="ans"><input value="${st.num}" disabled aria-label="Your answer"><span class="unit">${it.fixed||st.unit}</span></div>
-        <div class="step">Tick each one before you save</div>
-        <div class="checks">${it.checks.map((c,j)=>`<label><input type="checkbox" id="c${k}_${j}" class="cb"><span>${c}</span></label>`).join("")}</div>
-        <button class="btn" id="save" disabled>Save answer</button><button class="btn ghost" id="back">Go back and change it</button>`;
-  }
+  b+=`<div class="ans"><input id="a" inputmode="decimal" placeholder="Answer" aria-label="Your answer" value="${st.num}">${unitInput(k,false)}</div>
+      ${err?`<p class="err">${err}</p>`:""}`;
+  if(st.showChecks) b+=`<div class="checks">${it.checks.map((c,j)=>`<label><input type="checkbox" id="c${k}_${j}"><span>${c}</span></label>`).join("")}</div>`;
+  b+=`<button class="btn" id="save">${recheck!==null?"Save and back to the boss":"Save answer"}</button>
+      <button class="btn ghost" id="checks">${st.showChecks?"Hide checklist":"✋ Quick check (optional)"}</button>${hintBtn}`;
   paint(b);
 }
 function paint(b){card.innerHTML=b;card.classList.toggle("boss",view===NM);wire()}
@@ -258,30 +249,30 @@ function renderDone(){
 function wire(){
   const k=recheck!==null?recheck:view; if(view==="done"){ $("again").onclick=()=>location.reload(); return; }
   const it=ITEMS[k],st=S[k],toks=all(it);
+  const keep=()=>{if($("a"))st.num=$("a").value;if($("u"))st.unit=$("u").value};
   card.querySelectorAll(".w").forEach(el=>el.onclick=()=>{
-    if(st.phase!=="read")return; const n=+el.dataset.n; if(st.taps[n])return;
+    if(st.phase!=="read")return; const n=+el.dataset.n; if(st.taps[n])return; keep();
     if(toks[n].key){st.taps[n]="found";addScore(1);popMsg="+1 good spot"}else{st.taps[n]="miss";addScore(-1);popMsg="Not a key detail (−1)"}
     render();
   });
-  card.querySelectorAll(".info").forEach(el=>el.onclick=()=>{const n=+el.dataset.why;open=open===n?null:n;render()});
-  card.querySelectorAll("[data-u]").forEach(el=>el.onclick=()=>{st.num=$("a").value;st.picked=el.dataset.u;render()});
-  card.querySelectorAll("[data-recheck]").forEach(el=>el.onclick=()=>{S[NM].num=$("a").value;recheck=+el.dataset.recheck;S[recheck].phase="answer";open=null;err="";render()});
-  if($("go"))$("go").onclick=()=>{if(found(k)===keyTotal(it)&&!st.bonus){st.bonus=true;addScore(3)}st.phase="answer";popMsg="";open=null;render();$("a")?.focus()};
-  if($("hint"))$("hint").onclick=()=>{if($("a"))st.num=$("a").value;st.hint=true;hints++;addScore(-5);render()};
-  if($("check"))$("check").onclick=()=>{
-    st.num=$("a").value.trim();
-    st.unit=it.fixed?"":lv===1?it.unit:lv===2?st.picked:normUnit($("u").value);
+  card.querySelectorAll(".info").forEach(el=>el.onclick=()=>{keep();const n=+el.dataset.why;open=open===n?null:n;render()});
+  card.querySelectorAll("[data-u]").forEach(el=>el.onclick=()=>{keep();st.picked=el.dataset.u;render()});
+  card.querySelectorAll("[data-recheck]").forEach(el=>el.onclick=()=>{keep();recheck=+el.dataset.recheck;open=null;err="";render();window.scrollTo(0,0)});
+  if($("hint"))$("hint").onclick=()=>{keep();st.hint=true;hints++;addScore(-5);render()};
+  if($("checks"))$("checks").onclick=()=>{keep();st.showChecks=!st.showChecks;render()};
+  if($("save"))$("save").onclick=()=>{
+    keep(); st.num=st.num.trim();
+    const u=it.fixed?"":lv===1?it.unit:lv===2?st.picked:normUnit(st.unit);
     if(isNaN(num(st.num))){err="Type a number first.";return render()}
-    if(it.unit&&!st.unit){err="Add a unit too.";return render()}
-    err="";
-    if(recheck!==null){st.phase="saved";recheck=null;open=null;return render()}
-    st.phase="check";render();
+    if(it.unit&&!u){err="Add a unit too.";return render()}
+    st.unit=u; err=""; popMsg=""; open=null;
+    if(st.phase==="read"){ if(found(k)===keyTotal(it)&&!st.bonus){st.bonus=true;addScore(3)} st.phase="saved"; }
+    if(recheck!==null){recheck=null;return render()}
+    st.first={ok:isRight(k)}; view++; render(); window.scrollTo(0,0);
   };
-  if($("back"))$("back").onclick=()=>{st.phase="answer";render()};
-  card.querySelectorAll(".cb").forEach(c=>c.onchange=()=>{$("save").disabled=![...card.querySelectorAll(".cb")].every(x=>x.checked)});
-  if($("save"))$("save").onclick=()=>{st.phase="saved";st.first={ok:isRight(k)};view++;open=null;render();window.scrollTo(0,0)};
   if($("boss"))$("boss").onclick=()=>{
     st.num=$("a").value.trim();
+    if(st.phase==="read"){ if(found(k)===keyTotal(it)&&!st.bonus){st.bonus=true;addScore(3)} st.phase="saved"; popMsg=""; }
     if(isNaN(num(st.num))){bossMsg=`<p class="err">Type an amount first.</p>`;return render()}
     bossTries++;
     if(Math.abs(num(st.num)-it.answer)<1e-9){view="done";return render()}
