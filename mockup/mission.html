@@ -2,40 +2,47 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Lexend:wght@400;500;600&display=swap">
 <style>
-/* Layout: one calm column, one question at a time, big tap targets. Lexend body for easy reading. */
+/* Layout: one calm column, one question at a time, big tap targets. Lexend body for easy reading. Topic colours match the course sections. */
 :root{
   --bg:#eef3f1; --card:#ffffff; --ink:#15302b; --muted:#5b726c;
   --accent:#0f8a6f; --accent-ink:#ffffff; --hl:#ffe27a; --hl-ink:#3a2e00;
   --line:#d3e0dc; --good:#1b8a4a; --slip:#c77700; --bad:#c23b3b; --soft:#e3efeb;
+  --t-number:#1f8a4c; --t-fdpr:#b86e00; --t-measure:#2367c4; --t-stats:#8a3fc0; --t-boss:#c2410c;
   --display:"Bricolage Grotesque",system-ui,sans-serif;
   --body:"Lexend",system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0f1a18; --card:#16241f; --ink:#e4efeb; --muted:#9db3ac;
   --accent:#3cc59f; --accent-ink:#06231b; --hl:#7a6510; --hl-ink:#fff6cf;
-  --line:#2a3d37; --good:#4fd08a; --slip:#f0a63a; --bad:#ff7b7b; --soft:#1d302a; color-scheme:dark}}
+  --line:#2a3d37; --good:#4fd08a; --slip:#f0a63a; --bad:#ff7b7b; --soft:#1d302a;
+  --t-number:#4fd08a; --t-fdpr:#f0a63a; --t-measure:#6aa8ff; --t-stats:#c38bff; --t-boss:#ff8a5c; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f1a18; --card:#16241f; --ink:#e4efeb; --muted:#9db3ac;
   --accent:#3cc59f; --accent-ink:#06231b; --hl:#7a6510; --hl-ink:#fff6cf;
-  --line:#2a3d37; --good:#4fd08a; --slip:#f0a63a; --bad:#ff7b7b; --soft:#1d302a; color-scheme:dark}
+  --line:#2a3d37; --good:#4fd08a; --slip:#f0a63a; --bad:#ff7b7b; --soft:#1d302a;
+  --t-number:#4fd08a; --t-fdpr:#f0a63a; --t-measure:#6aa8ff; --t-stats:#c38bff; --t-boss:#ff8a5c; color-scheme:dark}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6}
 .wrap{max-width:560px;margin:0 auto;padding-block:24px 48px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   display:flex;flex-direction:column;gap:16px}
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-family:var(--display);font-weight:800;font-size:1.6rem;margin:0;letter-spacing:-.01em}
+h1{font-family:var(--display);font-weight:800;font-size:1.6rem;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h2{font-family:var(--display);font-weight:800;font-size:1.25rem;margin:0}
 .dots{display:flex;gap:6px}
 .dot{width:12px;height:12px;border-radius:50%;background:var(--line)}
 .dot.on{background:var(--accent)}
 .bar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
-.tabs{display:flex;gap:6px;flex-wrap:wrap}
 .chip{font:inherit;font-weight:600;font-size:.95rem;padding:7px 14px;border-radius:999px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
 .chip.on{border-color:var(--accent);background:var(--soft)}
 .tally{display:flex;gap:8px;flex-wrap:wrap;font-size:.85rem}
 .pill{padding:3px 11px;border-radius:999px;border:1.5px solid var(--line);font-variant-numeric:tabular-nums}
-.pill.g{border-color:var(--good);color:var(--good)} .pill.s{border-color:var(--slip);color:var(--slip)} .pill.b{border-color:var(--bad);color:var(--bad)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:18px}
+.pill.s{border-color:var(--slip);color:var(--slip)} .pill.b{border-color:var(--bad);color:var(--bad)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:16px}
+.card.top{border-top:6px solid var(--tc,var(--accent))}
 .step{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.topic{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid var(--tc);color:var(--tc);letter-spacing:.02em;width:fit-content}
+.topic::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--tc)}
+.t-number{--tc:var(--t-number)} .t-fdpr{--tc:var(--t-fdpr)} .t-measure{--tc:var(--t-measure)} .t-stats{--tc:var(--t-stats)} .t-boss{--tc:var(--t-boss)}
 .q p{margin:0 0 10px}
 .w{background:none;border:none;font:inherit;color:inherit;padding:1px 2px;margin:0 -1px;cursor:pointer;border-radius:4px}
 .w:hover{background:var(--soft)}
@@ -43,17 +50,17 @@ h1{font-family:var(--display);font-weight:800;font-size:1.6rem;margin:0;letter-s
 .w.miss{opacity:.45;text-decoration:line-through}
 .w.missed{outline:2px dashed var(--slip);outline-offset:1px;font-weight:600}
 .info{font:inherit;font-size:.72rem;font-weight:700;width:20px;height:20px;border-radius:50%;border:none;background:var(--slip);color:var(--card);cursor:pointer;margin-left:3px;vertical-align:middle;line-height:20px;padding:0}
-.diagram{position:relative;max-width:300px;width:100%;aspect-ratio:320/240;margin:0 auto 8px}
+.diagram{position:relative;max-width:300px;width:100%;margin:0 auto 8px}
 .diagram svg{position:absolute;inset:0;width:100%;height:100%;color:var(--ink)}
 .diagram .lab{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font-size:.95rem}
-.why{background:var(--soft);border-left:4px solid var(--slip);border-radius:8px;padding:10px 14px;font-size:.92rem}
-.why b{display:block}
+.why,.friend,.hintbox{background:var(--soft);border-left:4px solid var(--slip);border-radius:8px;padding:10px 14px;font-size:.92rem}
+.friend{border-left-color:var(--accent)}
+.why b,.friend b{display:block}
 .finder{background:var(--soft);border-radius:12px;padding:12px 16px;font-size:.95rem;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
-.pop{font-size:.85rem;color:var(--muted);min-height:1.4em;text-align:center}
+.pop{font-size:.85rem;color:var(--muted);text-align:center;margin:-6px 0 0}
 .ans{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.ans input{font:inherit;font-size:1.25rem;width:130px;padding:10px 14px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
-.ans input.u{width:100px;font-size:1.05rem}
-.ans .unit{font-size:1.2rem;font-weight:600}
+.ans input{font:inherit;font-size:1.25rem;width:140px;padding:10px 14px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.ans .unit,.pound{font-size:1.2rem;font-weight:600}
 .btn{font:inherit;font-weight:600;font-size:1.05rem;padding:14px 20px;border-radius:12px;border:none;cursor:pointer;background:var(--accent);color:var(--accent-ink);width:100%}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
@@ -69,236 +76,422 @@ h1{font-family:var(--display);font-weight:800;font-size:1.6rem;margin:0;letter-s
 .fb.bad{border-color:var(--bad)} .fb.bad h3{color:var(--bad)}
 .err{color:var(--bad);font-size:.9rem;margin:0}
 .note{font-size:.85rem;color:var(--muted);text-align:center;margin:0}
-button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-@media (prefers-reduced-motion:no-preference){.card{animation:in .25s ease}@keyframes in{from{transform:translateY(6px);opacity:.6}}}
+.lifelines{display:flex;gap:8px;flex-wrap:wrap}
+.life{font:inherit;font-size:.85rem;font-weight:600;padding:8px 12px;border-radius:12px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px}
+.life:disabled{opacity:.35;cursor:not-allowed;text-decoration:line-through}
+.life.free{border-color:var(--good);color:var(--good)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{font:inherit;font-weight:600;font-size:1.05rem;padding:12px;border-radius:12px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.opt.on{border-color:var(--accent);background:var(--soft)}
+.aud{display:flex;flex-direction:column;gap:6px}
+.aud .r{display:grid;grid-template-columns:70px 1fr 44px;gap:8px;align-items:center;font-size:.9rem;font-variant-numeric:tabular-nums}
+.aud .b{height:14px;border-radius:7px;background:var(--accent);opacity:.75}
 .list{display:flex;flex-direction:column;gap:8px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--line);border-radius:12px;flex-wrap:wrap}
-.row .val{font-weight:600;font-variant-numeric:tabular-nums}
-.row .lbl{color:var(--muted);font-size:.9rem}
-.mini{font:inherit;font-weight:600;font-size:.9rem;padding:6px 12px;border-radius:10px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
-.hintbox{background:var(--soft);border-left:4px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:.92rem}
-.big{font-family:var(--display);font-size:3rem;font-weight:800;margin:0;line-height:1;font-variant-numeric:tabular-nums}
-.boss{border-color:var(--slip)}
-.tag{display:inline-block;font-size:.75rem;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--slip);color:var(--card);letter-spacing:.05em;text-transform:uppercase}
-.ok{color:var(--good);font-weight:700} .no{color:var(--bad);font-weight:700}
-.pound{font-size:1.25rem;font-weight:600}
 .wrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;padding:10px 14px;border:1.5px solid var(--line);border-radius:12px}
-.wrow .ans{flex-wrap:nowrap}
-.wrow .lbl{color:var(--muted);font-size:.85rem}
-.wrow .val{font-weight:600;font-variant-numeric:tabular-nums}
-.wrow input.u{width:96px}
-.wrow .mini{grid-column:1 / -1;justify-self:start}
+.wrow .ans{flex-wrap:nowrap;gap:6px}
+.wrow input{width:100px;font-size:1.05rem;padding:8px 10px}
+.wrow .acts{grid-column:1 / -1;display:flex;gap:8px;flex-wrap:wrap}
+.lbl{color:var(--muted);font-size:.85rem}
+.val{font-weight:600;font-variant-numeric:tabular-nums}
+.mini{font:inherit;font-weight:600;font-size:.88rem;padding:6px 12px;border-radius:10px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.mini.point{border-color:var(--slip);color:var(--slip)}
+.big{font-family:var(--display);font-size:3rem;font-weight:800;margin:0;line-height:1;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--t-boss);color:var(--card);letter-spacing:.05em;text-transform:uppercase;width:fit-content}
+.ok{color:var(--good);font-weight:700} .no{color:var(--bad);font-weight:700}
+.sets{display:flex;flex-direction:column;gap:12px}
+.set{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.set .head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.set .emo{font-size:1.6rem;line-height:1}
+.topics{display:flex;gap:6px;flex-wrap:wrap}
+.vers{display:flex;gap:8px}
+.vers .btn{padding:10px 14px;font-size:.95rem}
+.legend{display:flex;gap:6px;flex-wrap:wrap}
+.how{margin:0;padding-left:20px;font-size:.95rem;color:var(--muted)}
+.how li{margin:2px 0}
+.link{font:inherit;background:none;border:none;color:var(--muted);cursor:pointer;text-decoration:underline;padding:0;width:fit-content}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.card{animation:in .25s ease}@keyframes in{from{transform:translateY(6px);opacity:.6}}}
 </style>
 
-<div class="wrap">
-  <header>
-    <h1>Garden Makeover</h1>
-    <div class="dots" id="dots"></div>
-  </header>
-  <div class="bar">
-    <div class="tabs" id="levels">
-      <button class="chip on" data-lv="1">Level 1</button>
-      <button class="chip" data-lv="2">Level 2</button>
-      <button class="chip" data-lv="3">Level 3</button>
-    </div>
-    <div class="tally">
-      <span class="pill">🎯 Score <b id="sc">100</b></span>
-      <span class="pill s">Hints <b id="hu">0</b></span>
-      <span class="pill b">Boss tries <b id="bt">0</b></span>
-    </div>
-  </div>
-  <div class="card" id="card"></div>
-  <p class="note" id="lvnote"></p>
-</div>
+<div class="wrap" id="app"></div>
 
 <script>
-/* [[word|why]] marks a key detail. Nothing marks it until found. */
-const ITEMS = [
-  { title:"The fence",
-    rect:{labels:[{t:"12 m",x:50,y:7,why:"Long side. It's a rectangle, so the opposite side is 12 m too."},
-                  {t:"800 cm",x:91,y:50,why:"This side is in cm, not m! 800 cm = 8 m."},
-                  {t:"Garden",x:50,y:50}]},
-    text:["A fence goes [[all the way round|All the way round = perimeter. Add all 4 sides.]] the garden.",
-          "Work out how much fence is needed.",
-          "Give your answer in [[metres.|Answer in m. One side is in cm, so convert it first (÷ 100).]]"],
-    unit:"m", units:["cm","m","km"], answer:40,
-    hint:"Change 800 cm into metres first. Then add all four sides.",
-    checks:["I changed cm into m first","I added all 4 sides","My answer is in metres"] },
-  { title:"The patio",
-    text:["A patio needs [[45|How many slabs you need.]] slabs.",
-          "Slabs are sold in [[packs of 8.|8 slabs in each pack, so divide.]]",
-          "How many packs do you need to [[buy?|You can't buy part of a pack, so round UP.]]"],
-    fixed:"packs", answer:6,
-    hint:"45 ÷ 8 = 5.6… You can't buy 0.6 of a pack.",
-    checks:["I divided slabs by the pack size","I rounded UP (no half packs)"] },
-  { title:"The gardeners",
-    text:["It takes [[2|Starting number of gardeners.]] gardeners [[6|Days the 2 gardeners take.]] days to do the garden.",
-          "How many days would it take [[3|More gardeners, so FEWER days.]] gardeners?"],
-    unit:"days", units:["hours","days","weeks"], answer:4,
-    hint:"Total work = 2 × 6 days of work. Share it between 3.",
-    checks:["More workers means FEWER days","I found the total work first"] },
-  { title:"The lawn",
-    rect:{labels:[{t:"6 m",x:50,y:7,why:"Length of the lawn."},{t:"5 m",x:91,y:50,why:"Width of the lawn."},{t:"Lawn",x:50,y:50}]},
-    text:["New turf will cover the [[whole lawn.|Covering a surface = AREA, not perimeter.]]",
-          "Work out the [[area|Area = length × width.]] of the lawn."],
-    unit:"m²", units:["m","m²","cm²"], answer:30,
-    hint:"Area = length × width. Units are squared.",
-    checks:["I found the area, not the perimeter","My unit is squared (m²)"] },
-  { title:"Boss: the budget", boss:true,
-    text:["Fence costs [[£9 per metre.|Times by your fence answer (Mission 1).]]",
-          "Slabs cost [[£24 a pack.|Times by your packs answer (Mission 2).]]",
-          "Gardeners cost [[£120 a day.|Times by your days answer (Mission 3).]]",
-          "Turf costs [[£4 per m².|Times by your area answer (Mission 4).]]",
-          "Your budget is [[£1,200.|Take the total cost away from this.]]",
-          "Using your mission answers, how much money is [[left?|Left = budget minus everything you spend.]]"],
-    answer:96,
-    hint:"Work out 4 costs: fence, slabs, gardeners, turf. Add them up. Then take that from £1,200." }
+/* ---------- Topics ---------- */
+const TOPICS={
+  number:{name:"Number",cls:"t-number"},
+  fdpr:{name:"Fractions, % & Ratio",cls:"t-fdpr"},
+  measure:{name:"Measure & Shape",cls:"t-measure"},
+  stats:{name:"Statistics",cls:"t-stats"},
+  boss:{name:"Boss · Mixed",cls:"t-boss"}
+};
+/* ---------- Missions ----------
+   [[word|why]] marks a key detail; nothing marks it until found.
+   Boss: money/thread left = start − Σ (your mission answer × mul). */
+const SETS=[
+ {id:"garden",emoji:"🌱",name:"Garden Makeover",versions:[
+  {missions:[
+   {title:"The fence",topic:"measure",shape:{type:"rect",labels:[{t:"12 m",x:50,y:7,why:"Long side. It's a rectangle, so the opposite side is 12 m too."},{t:"800 cm",x:91,y:50,why:"This side is in cm, not m! 800 cm = 8 m."},{t:"Garden",x:50,y:50}]},
+    text:["A fence goes [[all the way round|All the way round = perimeter. Add all 4 sides.]] the garden.","How much fence is needed?","Give your answer in [[metres.|One side is in cm. Change it to m first (÷ 100).]]"],
+    unit:"m",answer:40,wrong:[1624,20,96],friend:"Change 800 cm into metres first: 800 ÷ 100 = 8 m. Now add all 4 sides.",checks:["I changed cm into m first","I added all 4 sides"]},
+   {title:"The gardeners",topic:"fdpr",
+    text:["It takes [[2|Starting number of gardeners.]] gardeners [[6|Days the 2 gardeners take.]] days to do the garden.","How many days would it take [[3|More gardeners, so FEWER days.]] gardeners?"],
+    unit:"days",answer:4,wrong:[9,3,12],friend:"How long would 1 gardener take on their own? 2 × 6 = 12 days. Now share that between 3.",checks:["More workers means FEWER days","I worked out 1 person first"]},
+   {title:"The lawn",topic:"measure",shape:{type:"rect",labels:[{t:"6 m",x:50,y:7,why:"Length of the lawn."},{t:"5 m",x:91,y:50,why:"Width of the lawn."},{t:"Lawn",x:50,y:50}]},
+    text:["New turf will cover the [[whole lawn.|Covering a surface = AREA, not perimeter.]]","Work out the [[area|Area = length × width.]] of the lawn."],
+    unit:"m²",answer:30,wrong:[22,11,60],friend:"Area = length × width. Try 6 × 5.",checks:["I found the area, not the perimeter"]}],
+  boss:{text:["Fence costs [[£9 per metre.|Times by your fence answer.]]","Gardeners cost [[£120 a day.|Times by your days answer.]]","Turf costs [[£4 per m².|Times by your area answer.]]","Your budget is [[£1,000.|Take the total cost away from this.]]","Using your answers, how much money is [[left?|Left = budget minus everything you spend.]]"],
+    rows:[{k:0,label:"Fence",mul:9,mt:"× £9 per m"},{k:1,label:"Gardeners",mul:120,mt:"× £120 a day"},{k:2,label:"Turf",mul:4,mt:"× £4 per m²"}],start:1000,st:"£1,000",pre:"£",
+    friend:"Do each cost: fence × £9, days × £120, area × £4. Add them up, then take the total from £1,000."}},
+  {missions:[
+   {title:"The fence",topic:"measure",shape:{type:"rect",labels:[{t:"10 m",x:50,y:7,why:"Long side. The opposite side is 10 m too."},{t:"500 cm",x:91,y:50,why:"This side is in cm, not m! 500 cm = 5 m."},{t:"Garden",x:50,y:50}]},
+    text:["A fence goes [[all the way round|All the way round = perimeter. Add all 4 sides.]] the garden.","How much fence is needed?","Give your answer in [[metres.|One side is in cm. Change it to m first (÷ 100).]]"],
+    unit:"m",answer:30,wrong:[1020,15,50],friend:"Change 500 cm into metres first: 500 ÷ 100 = 5 m. Now add all 4 sides.",checks:["I changed cm into m first","I added all 4 sides"]},
+   {title:"The gardeners",topic:"fdpr",
+    text:["It takes [[3|Starting number of gardeners.]] gardeners [[8|Days the 3 gardeners take.]] days to do the garden.","How many days would it take [[4|More gardeners, so FEWER days.]] gardeners?"],
+    unit:"days",answer:6,wrong:[12,32,9],friend:"How long would 1 gardener take on their own? 3 × 8 = 24 days. Now share that between 4.",checks:["More workers means FEWER days","I worked out 1 person first"]},
+   {title:"The lawn",topic:"measure",shape:{type:"rect",labels:[{t:"7 m",x:50,y:7,why:"Length of the lawn."},{t:"4 m",x:91,y:50,why:"Width of the lawn."},{t:"Lawn",x:50,y:50}]},
+    text:["New turf will cover the [[whole lawn.|Covering a surface = AREA, not perimeter.]]","Work out the [[area|Area = length × width.]] of the lawn."],
+    unit:"m²",answer:28,wrong:[22,11,56],friend:"Area = length × width. Try 7 × 4.",checks:["I found the area, not the perimeter"]}],
+  boss:{text:["Fence costs [[£9 per metre.|Times by your fence answer.]]","Gardeners cost [[£120 a day.|Times by your days answer.]]","Turf costs [[£4 per m².|Times by your area answer.]]","Your budget is [[£1,200.|Take the total cost away from this.]]","Using your answers, how much money is [[left?|Left = budget minus everything you spend.]]"],
+    rows:[{k:0,label:"Fence",mul:9,mt:"× £9 per m"},{k:1,label:"Gardeners",mul:120,mt:"× £120 a day"},{k:2,label:"Turf",mul:4,mt:"× £4 per m²"}],start:1200,st:"£1,200",pre:"£",
+    friend:"Do each cost: fence × £9, days × £120, area × £4. Add them up, then take the total from £1,200."}}
+ ]},
+ {id:"road",emoji:"🚗",name:"Road Trip",versions:[
+  {missions:[
+   {title:"Drive time",topic:"measure",
+    text:["You drive [[150 miles|The distance.]] at an average speed of [[50 mph.|mph = miles per hour. Each hour you go 50 miles.]]","How [[long|Time = distance ÷ speed.]] does the drive take?"],
+    unit:"hours",answer:3,wrong:[100,200,2.5],friend:"Time = distance ÷ speed. How many 50s go into 150?",checks:["I divided distance by speed"]},
+   {title:"Fuel",topic:"fdpr",
+    text:["The car goes [[40 miles|Miles you get from each gallon.]] on [[1 gallon|One gallon of fuel.]] of fuel.","The trip is [[200 miles.|Total distance.]]","How many gallons will you use?"],
+    unit:"gallons",answer:5,wrong:[8,50,4],friend:"How many lots of 40 miles fit into 200 miles? 200 ÷ 40.",checks:["I divided the trip by miles per gallon"]},
+   {title:"Tolls",topic:"number",
+    text:["You go through [[4|Number of tolls.]] toll roads.","Each toll costs [[£2.50.|Price of one toll.]]","How much do the tolls cost [[altogether?|Altogether = total. Number of tolls × price.]]"],
+    pre:"£",answer:10,wrong:[6.5,8,12.5],friend:"4 lots of £2.50. Try £2.50 + £2.50 + £2.50 + £2.50.",checks:["I multiplied, not added 4 + 2.50"]}],
+  boss:{text:["Fuel costs [[£6.50 a gallon.|Times by your gallons answer.]]","Snacks cost [[£4 for every hour|Times by your hours answer.]] of driving.","Add the [[tolls|Your tolls answer, just add it on.]] too.","Your trip money is [[£60.|Take the total away from this.]]","How much money is [[left?|Left = trip money minus everything.]]"],
+    rows:[{k:1,label:"Fuel",mul:6.5,mt:"× £6.50 a gallon"},{k:0,label:"Snacks",mul:4,mt:"× £4 an hour"},{k:2,label:"Tolls",mul:1,mt:"just add it"}],start:60,st:"£60",pre:"£",
+    friend:"Fuel = gallons × £6.50. Snacks = hours × £4. Add the tolls. Take the total from £60."}},
+  {missions:[
+   {title:"Drive time",topic:"measure",
+    text:["You drive [[240 miles|The distance.]] at an average speed of [[60 mph.|mph = miles per hour. Each hour you go 60 miles.]]","How [[long|Time = distance ÷ speed.]] does the drive take?"],
+    unit:"hours",answer:4,wrong:[180,300,3],friend:"Time = distance ÷ speed. How many 60s go into 240?",checks:["I divided distance by speed"]},
+   {title:"Fuel",topic:"fdpr",
+    text:["The car goes [[45 miles|Miles you get from each gallon.]] on [[1 gallon|One gallon of fuel.]] of fuel.","The trip is [[270 miles.|Total distance.]]","How many gallons will you use?"],
+    unit:"gallons",answer:6,wrong:[5,9,7],friend:"How many lots of 45 miles fit into 270 miles? 270 ÷ 45.",checks:["I divided the trip by miles per gallon"]},
+   {title:"Tolls",topic:"number",
+    text:["You go through [[3|Number of tolls.]] toll roads.","Each toll costs [[£3.20.|Price of one toll.]]","How much do the tolls cost [[altogether?|Altogether = total. Number of tolls × price.]]"],
+    pre:"£",answer:9.6,wrong:[6.2,9.2,10.6],friend:"3 lots of £3.20. Try £3.20 + £3.20 + £3.20.",checks:["I multiplied, not added 3 + 3.20"]}],
+  boss:{text:["Fuel costs [[£6.50 a gallon.|Times by your gallons answer.]]","Snacks cost [[£4 for every hour|Times by your hours answer.]] of driving.","Add the [[tolls|Your tolls answer, just add it on.]] too.","Your trip money is [[£70.|Take the total away from this.]]","How much money is [[left?|Left = trip money minus everything.]]"],
+    rows:[{k:1,label:"Fuel",mul:6.5,mt:"× £6.50 a gallon"},{k:0,label:"Snacks",mul:4,mt:"× £4 an hour"},{k:2,label:"Tolls",mul:1,mt:"just add it"}],start:70,st:"£70",pre:"£",
+    friend:"Fuel = gallons × £6.50. Snacks = hours × £4. Add the tolls. Take the total from £70."}}
+ ]},
+ {id:"sale",emoji:"🛍️",name:"Black Friday",versions:[
+  {missions:[
+   {title:"Trainers",topic:"fdpr",
+    text:["Trainers normally cost [[£80.|The full price.]]","In the sale they are [[25% off.|25% = a quarter. Find it, then take it AWAY.]]","What is the [[sale price?|Sale price = what you pay after the discount.]]"],
+    pre:"£",answer:60,wrong:[20,55,100],friend:"25% is the same as ¼. ¼ of £80 is £20. Now take that off £80.",checks:["I took the discount OFF the price"]},
+   {title:"Hoodie",topic:"fdpr",
+    text:["A hoodie normally costs [[£40.|The full price.]]","The sale price is [[¾|¾ means split into 4 equal parts and take 3.]] of the normal price.","What is the sale price?"],
+    pre:"£",answer:30,wrong:[10,37,53.33],friend:"Split £40 into 4 equal parts: £10 each. ¾ means 3 of those parts.",checks:["I found ¼ first, then times 3"]},
+   {title:"Socks",topic:"number",
+    text:["Socks are [[3 pairs for £5|Multipack deal.]] or [[£2 a pair.|Single price.]]","You need [[6 pairs.|How many you need.]]","What is the [[cheapest|Work out both ways, then pick the lower one.]] way to buy them? Give the cost."],
+    pre:"£",answer:10,wrong:[12,11,5],friend:"2 packs of 3 = 6 pairs. Compare 2 × £5 with 6 × £2.",checks:["I worked out BOTH ways"]}],
+  boss:{text:["You have a [[£150 gift card.|Take your total away from this.]]","You buy [[1 pair|1 × your trainers answer.]] of trainers,","[[2 hoodies|2 × your hoodie answer!]] and the socks.","How much is [[left|Left = card minus everything.]] on the card?"],
+    rows:[{k:0,label:"Trainers",mul:1,mt:"× 1 pair"},{k:1,label:"Hoodies",mul:2,mt:"× 2 hoodies"},{k:2,label:"Socks",mul:1,mt:"just add it"}],start:150,st:"£150",pre:"£",
+    friend:"Trainers once, hoodie TWICE, socks once. Add them up and take it from £150."}},
+  {missions:[
+   {title:"Trainers",topic:"fdpr",
+    text:["Trainers normally cost [[£120.|The full price.]]","In the sale they are [[20% off.|Find 20%, then take it AWAY.]]","What is the [[sale price?|Sale price = what you pay after the discount.]]"],
+    pre:"£",answer:96,wrong:[24,100,144],friend:"10% of £120 is £12, so 20% is £24. Now take that off £120.",checks:["I took the discount OFF the price"]},
+   {title:"Hoodie",topic:"fdpr",
+    text:["A hoodie normally costs [[£36.|The full price.]]","The sale price is [[⅔|⅔ means split into 3 equal parts and take 2.]] of the normal price.","What is the sale price?"],
+    pre:"£",answer:24,wrong:[12,34,54],friend:"Split £36 into 3 equal parts: £12 each. ⅔ means 2 of those parts.",checks:["I found ⅓ first, then times 2"]},
+   {title:"Socks",topic:"number",
+    text:["Socks are [[4 pairs for £6|Multipack deal.]] or [[£2 a pair.|Single price.]]","You need [[8 pairs.|How many you need.]]","What is the [[cheapest|Work out both ways, then pick the lower one.]] way to buy them? Give the cost."],
+    pre:"£",answer:12,wrong:[16,14,6],friend:"2 packs of 4 = 8 pairs. Compare 2 × £6 with 8 × £2.",checks:["I worked out BOTH ways"]}],
+  boss:{text:["You have a [[£200 gift card.|Take your total away from this.]]","You buy [[1 pair|1 × your trainers answer.]] of trainers,","[[2 hoodies|2 × your hoodie answer!]] and the socks.","How much is [[left|Left = card minus everything.]] on the card?"],
+    rows:[{k:0,label:"Trainers",mul:1,mt:"× 1 pair"},{k:1,label:"Hoodies",mul:2,mt:"× 2 hoodies"},{k:2,label:"Socks",mul:1,mt:"just add it"}],start:200,st:"£200",pre:"£",
+    friend:"Trainers once, hoodie TWICE, socks once. Add them up and take it from £200."}}
+ ]},
+ {id:"party",emoji:"🍕",name:"Party Food",versions:[
+  {missions:[
+   {title:"Pasta",topic:"fdpr",
+    text:["A recipe for [[4 people|What the recipe is made for.]] uses [[300 g|Pasta for 4 people.]] of pasta.","How much pasta do you need for [[12 people?|12 is 3 times as many as 4, so times the pasta by 3.]]"],
+    unit:"g",answer:900,wrong:[1200,600,3600],friend:"How many 4s go into 12? That's how many times bigger the recipe needs to be.",checks:["I scaled up by the same amount"]},
+   {title:"Pizzas",topic:"number",
+    text:["Each pizza has [[8 slices.|Slices in one pizza.]]","There are [[12 guests|Number of people.]] and each eats [[2 slices.|Slices per person.]]","How many pizzas do you need?"],
+    unit:"pizzas",answer:3,wrong:[2,4,24],friend:"Total slices = 12 × 2 = 24. How many pizzas of 8 slices is that?",checks:["I found the total slices first"]},
+   {title:"Drinks",topic:"stats",
+    text:["4 shops sell cola at [[£2, £3, £2 and £5.|These are the 4 prices.]]","What is the [[mean|Mean = add them all up, then divide by how many there are.]] price?"],
+    pre:"£",answer:3,wrong:[2,12,3.5],friend:"Add the 4 prices: 2 + 3 + 2 + 5. Now divide by 4.",checks:["I divided by how many prices there are"]}],
+  boss:{text:["Pasta costs [[1p per gram.|Times your grams by £0.01.]]","Pizzas cost [[£8 each.|Times by your pizzas answer.]]","You buy [[6 bottles|6 × your mean price.]] of cola at the mean price.","Your budget is [[£60.|Take the total away from this.]]","How much is [[left?|Left = budget minus everything.]]"],
+    rows:[{k:0,label:"Pasta",mul:0.01,mt:"× 1p per g"},{k:1,label:"Pizzas",mul:8,mt:"× £8 each"},{k:2,label:"Cola",mul:6,mt:"× 6 bottles"}],start:60,st:"£60",pre:"£",
+    friend:"1p per gram means 100 g costs £1. So pasta = grams ÷ 100 in pounds. Then pizzas × £8 and cola × 6."}},
+  {missions:[
+   {title:"Pasta",topic:"fdpr",
+    text:["A recipe for [[2 people|What the recipe is made for.]] uses [[150 g|Pasta for 2 people.]] of pasta.","How much pasta do you need for [[10 people?|10 is 5 times as many as 2, so times the pasta by 5.]]"],
+    unit:"g",answer:750,wrong:[300,1500,158],friend:"How many 2s go into 10? That's how many times bigger the recipe needs to be.",checks:["I scaled up by the same amount"]},
+   {title:"Pizzas",topic:"number",
+    text:["Each pizza has [[8 slices.|Slices in one pizza.]]","There are [[10 guests|Number of people.]] and each eats [[2 slices.|Slices per person.]]","How many pizzas do you [[need?|You can't buy half a pizza, so round UP.]]"],
+    unit:"pizzas",answer:3,wrong:[2,2.5,20],friend:"Total slices = 10 × 2 = 20. 20 ÷ 8 = 2.5… can you buy half a pizza?",checks:["I rounded UP"]},
+   {title:"Drinks",topic:"stats",
+    text:["4 shops sell cola at [[£2, £4, £3 and £7.|These are the 4 prices.]]","What is the [[mean|Mean = add them all up, then divide by how many there are.]] price?"],
+    pre:"£",answer:4,wrong:[3.5,16,5],friend:"Add the 4 prices: 2 + 4 + 3 + 7. Now divide by 4.",checks:["I divided by how many prices there are"]}],
+  boss:{text:["Pasta costs [[1p per gram.|Times your grams by £0.01.]]","Pizzas cost [[£8 each.|Times by your pizzas answer.]]","You buy [[6 bottles|6 × your mean price.]] of cola at the mean price.","Your budget is [[£60.|Take the total away from this.]]","How much is [[left?|Left = budget minus everything.]]"],
+    rows:[{k:0,label:"Pasta",mul:0.01,mt:"× 1p per g"},{k:1,label:"Pizzas",mul:8,mt:"× £8 each"},{k:2,label:"Cola",mul:6,mt:"× 6 bottles"}],start:60,st:"£60",pre:"£",
+    friend:"1p per gram means 100 g costs £1. So pasta = grams ÷ 100 in pounds. Then pizzas × £8 and cola × 6."}}
+ ]},
+ {id:"ball",emoji:"⚽",name:"Design a Football",versions:[
+  {missions:[
+   {title:"Round the ball",topic:"measure",shape:{type:"circle",labels:[{t:"22 cm",x:50,y:42,why:"This is the DIAMETER: straight across through the middle."}]},
+    text:["You're designing a new football.","Work out the [[circumference|Circumference = the distance all the way round a circle. C = π × diameter.]] of the ball.","Use [[π = 3.14|π (pi) is about 3.14. Times it by the diameter.]] and round to the [[nearest cm.|Round to a whole number.]]"],
+    unit:"cm",answer:69,wrong:[25,35,138],friend:"C = π × d. Do 3.14 × 22, then round to the nearest whole number.",checks:["I used the diameter, not half of it","I rounded to a whole number"]},
+   {title:"Hexagon panel",topic:"measure",shape:{type:"hex",labels:[{t:"4.5 cm",x:50,y:93,why:"One side. A regular hexagon has 6 equal sides."}]},
+    text:["Each white panel is a [[regular hexagon.|Regular = all sides the same. Hexagon = 6 sides.]]","Stitching goes [[all the way round|All the way round = perimeter.]] each panel.","How much stitching does one panel need?"],
+    unit:"cm",answer:27,wrong:[22.5,18,31.5],friend:"A hexagon has 6 sides, all 4.5 cm. Do 6 × 4.5.",checks:["I used 6 sides"]},
+   {title:"Panel ratio",topic:"fdpr",
+    text:["For every [[5 hexagons|First part of the ratio.]] there are [[3 pentagons.|Second part of the ratio.]]","The ball has [[20 hexagons.|20 is 4 lots of 5.]]","How many pentagons does it have?"],
+    unit:"pentagons",answer:12,wrong:[18,8,15],friend:"How many 5s are in 20? Then do that many lots of 3.",checks:["I scaled both sides of the ratio the same"]}],
+  boss:{text:["Thread comes on a reel of [[1,000 cm.|Take your total away from this.]]","A printed band goes [[once round|1 × your circumference.]] the ball.","Each of the [[20 hexagons|20 × your hexagon stitching.]] needs stitching.","Each pentagon needs [[22.5 cm|Your pentagons × 22.5 cm.]] of stitching.","How much thread is [[left|Left = reel minus everything used.]] on the reel?"],
+    rows:[{k:0,label:"Band",mul:1,mt:"× 1 band"},{k:1,label:"Hexagons",mul:20,mt:"× 20 hexagons"},{k:2,label:"Pentagons",mul:22.5,mt:"× 22.5 cm each"}],start:1000,st:"1,000 cm",unit:"cm",
+    friend:"Band = circumference. Hexagons = 20 × hexagon stitching. Pentagons = number × 22.5. Add them, take from 1,000."}},
+  {missions:[
+   {title:"Round the ball",topic:"measure",shape:{type:"circle",labels:[{t:"20 cm",x:50,y:42,why:"This is the DIAMETER: straight across through the middle."}]},
+    text:["You're designing a new football.","Work out the [[circumference|Circumference = the distance all the way round a circle. C = π × diameter.]] of the ball.","Use [[π = 3.14|π (pi) is about 3.14. Times it by the diameter.]] and round to the [[nearest cm.|Round to a whole number.]]"],
+    unit:"cm",answer:63,wrong:[23,31,126],friend:"C = π × d. Do 3.14 × 20, then round to the nearest whole number.",checks:["I used the diameter, not half of it","I rounded to a whole number"]},
+   {title:"Hexagon panel",topic:"measure",shape:{type:"hex",labels:[{t:"4 cm",x:50,y:93,why:"One side. A regular hexagon has 6 equal sides."}]},
+    text:["Each white panel is a [[regular hexagon.|Regular = all sides the same. Hexagon = 6 sides.]]","Stitching goes [[all the way round|All the way round = perimeter.]] each panel.","How much stitching does one panel need?"],
+    unit:"cm",answer:24,wrong:[20,16,28],friend:"A hexagon has 6 sides, all 4 cm. Do 6 × 4.",checks:["I used 6 sides"]},
+   {title:"Panel ratio",topic:"fdpr",
+    text:["For every [[5 hexagons|First part of the ratio.]] there are [[3 pentagons.|Second part of the ratio.]]","A mini ball has [[15 hexagons.|15 is 3 lots of 5.]]","How many pentagons does it have?"],
+    unit:"pentagons",answer:9,wrong:[13,6,25],friend:"How many 5s are in 15? Then do that many lots of 3.",checks:["I scaled both sides of the ratio the same"]}],
+  boss:{text:["Thread comes on a reel of [[800 cm.|Take your total away from this.]]","A printed band goes [[once round|1 × your circumference.]] the ball.","Each of the [[15 hexagons|15 × your hexagon stitching.]] needs stitching.","Each pentagon needs [[20 cm|Your pentagons × 20 cm.]] of stitching.","How much thread is [[left|Left = reel minus everything used.]] on the reel?"],
+    rows:[{k:0,label:"Band",mul:1,mt:"× 1 band"},{k:1,label:"Hexagons",mul:15,mt:"× 15 hexagons"},{k:2,label:"Pentagons",mul:20,mt:"× 20 cm each"}],start:800,st:"800 cm",unit:"cm",
+    friend:"Band = circumference. Hexagons = 15 × hexagon stitching. Pentagons = number × 20. Add them, take from 800."}}
+ ]}
 ];
-const NM = ITEMS.length-1;
-const LVNOTE={1:"Level 1: the unit is shown next to the box.",2:"Level 2: you pick the unit.",3:"Level 3: you type the unit yourself."};
 
-let lv=1, score=100, hints=0, bossTries=0, view=0, detective=false, recheck=null, bossMsg="", err="", popMsg="", open=null;
-const S = ITEMS.map(()=>({taps:{},phase:"read",num:"",unit:"",picked:"",first:null,hint:false,bonus:false}));
-const card=document.getElementById("card"), $=id=>document.getElementById(id);
+/* ---------- Helpers ---------- */
+const $=id=>document.getElementById(id);
+const app=$("app");
+const r2=x=>Math.round(x*100)/100;
+const num=s=>{const v=parseFloat(String(s??"").replace(/[£,\s]/g,""));return isNaN(v)?NaN:v};
+const same=(a,b)=>Math.abs(a-b)<0.005;
+const fmt=(v,o)=>{if(isNaN(v)||v==="")return"—";const n=Number(v);const t=Number.isInteger(n)?n.toLocaleString():n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});return (o.pre||"")+t+(o.unit?" "+o.unit:"")};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const LIFE={friend:{ic:"📞",name:"Phone a friend"},fifty:{ic:"✂️",name:"50:50"},four:{ic:"🅰️",name:"Pick from 4"},aud:{ic:"👥",name:"Ask the audience"},point:{ic:"🎯",name:"Point at it"}};
+const COST=5;
 
+/* ---------- Game state ---------- */
+let G=null, screen="home";
+function newGame(si,vi){
+  const set=SETS[si], v=set.versions[vi];
+  const items=v.missions.concat([{...v.boss,boss:true,title:"Boss: the final sum",topic:"boss"}]);
+  const bossAns=r2(v.boss.start-v.boss.rows.reduce((t,r)=>t+v.missions[r.k].answer*r.mul,0));
+  items[items.length-1].answer=bossAns;
+  G={si,vi,set,items,NM:v.missions.length,score:100,tries:0,view:0,recheck:null,detective:false,
+     used:{},pointMode:false,pointFree:false,pointFreeUsed:false,pointMsg:"",bossMsg:"",err:"",pop:"",open:null,
+     S:items.map(()=>({taps:{},phase:"read",num:"",first:null,bonus:false,friend:false,opts:null,aud:null,showChecks:false})),
+     W:{c:v.boss.rows.map(()=>""),total:""}};
+  screen="play"; render(); window.scrollTo(0,0);
+}
+const addScore=d=>{G.score=Math.max(10,G.score+d)};
+
+/* ---------- Tokens ---------- */
 const lines=it=>it.text.map(line=>line.split(/(\[\[.*?\]\]|\s+)/).filter(Boolean).map(tok=>{
   if(/^\s+$/.test(tok))return{space:true};
   if(tok.startsWith("[[")){const[t,why]=tok.slice(2,-2).split("|");return{t,why,key:true}}
   return{t:tok};
 }));
-const all=it=>((it.rect&&it.rect.labels)||[]).map(l=>({...l,key:!!l.why})).concat(lines(it).flat().filter(x=>!x.space));
-const keyTotal=it=>all(it).filter(x=>x.key).length;
-const found=k=>all(ITEMS[k]).filter((x,n)=>x.key&&S[k].taps[n]==="found").length;
-const num=s=>parseFloat(String(s).replace(/[£,\s]/g,""));
-const unitOf=it=>it.fixed||it.unit||"";
-function normUnit(s){
-  s=(s||"").trim().toLowerCase();
-  const map=[["m²",/^(m2|m²|sq ?m|square met(re|er)s?)$/],["cm²",/^(cm2|cm²|sq ?cm)$/],["cm",/^(cm|cms|centimet(re|er)s?)$/],["km",/^(km|kilomet(re|er)s?)$/],["m",/^(m|met(re|er)s?)$/],["days",/^(days?|d)$/],["hours",/^(hours?|hrs?|h)$/],["weeks",/^(weeks?|wks?)$/]];
-  for(const[k,r]of map)if(r.test(s))return k; return s;
-}
-const isRight=k=>{const it=ITEMS[k],st=S[k];return Math.abs(num(st.num)-it.answer)<1e-9&&(!it.unit||st.unit===it.unit)};
-const setTally=()=>{$("sc").textContent=score;$("hu").textContent=hints;$("bt").textContent=bossTries};
-const addScore=d=>{score=Math.max(0,score+d);setTally()};
+const allToks=it=>((it.shape&&it.shape.labels)||[]).map(l=>({...l,key:!!l.why})).concat(lines(it).flat().filter(x=>!x.space));
+const keyTotal=it=>allToks(it).filter(x=>x.key).length;
+const found=k=>allToks(G.items[k]).filter((x,n)=>x.key&&G.S[k].taps[n]==="found").length;
+const isRight=k=>same(num(G.S[k].num),G.items[k].answer);
 
-function word(k,tok,n,style=""){
-  const st=S[k]; let cls="w",extra="";
+/* ---------- Render: home ---------- */
+function renderHome(){
+  const legend=["number","fdpr","measure","stats"].map(t=>`<span class="topic ${TOPICS[t].cls}">${TOPICS[t].name}</span>`).join("");
+  const sets=SETS.map((s,si)=>{
+    const tps=[...new Set(s.versions[0].missions.map(m=>m.topic))].map(t=>`<span class="topic ${TOPICS[t].cls}">${TOPICS[t].name}</span>`).join("");
+    const best=[0,1].map(vi=>store.get(`mm-best-${s.id}-${vi}`));
+    return `<div class="set"><div class="head"><h2><span class="emo">${s.emoji}</span> ${s.name}</h2>
+      <span class="lbl">${best.some(Boolean)?"Best: "+best.map((b,vi)=>`V${vi+1} ${b||"–"}`).join(" · "):"Not played yet"}</span></div>
+      <div class="topics">${tps}</div>
+      <div class="vers"><button class="btn" data-play="${si}-0">Version 1</button><button class="btn ghost" data-play="${si}-1">Version 2</button></div></div>`;
+  }).join("");
+  app.innerHTML=`<header><h1>Maths Missions</h1><span class="lbl">Level 1</span></header>
+    <div class="legend">${legend}</div>
+    <div class="card"><div class="step">How it works</div>
+      <ol class="how"><li>Answer 3 missions. No right or wrong is shown yet.</li>
+      <li>Tap the key words for bonus points.</li>
+      <li>The boss uses YOUR answers. Show your working.</li>
+      <li>Wrong? It tells you how far off you are, but not where. Go detective 🕵️</li>
+      <li>Stuck? Use a lifeline (−${COST} each, once per mission set).</li></ol></div>
+    <div class="sets">${sets}</div>`;
+  app.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{const[si,vi]=b.dataset.play.split("-").map(Number);newGame(si,vi)});
+}
+
+/* ---------- Render: play ---------- */
+function word(k,tok,n,style){
+  const st=G.S[k]; let cls="w",extra="";
   if(st.taps[n]==="found")cls+=" found";
   else if(st.taps[n]==="miss")cls+=" miss";
   else if(st.phase!=="read"&&tok.key){cls+=" missed";extra=`<button class="info" data-why="${n}" aria-label="Why this matters">i</button>`}
   const b=`<button class="${cls}" data-n="${n}">${tok.t}</button>${extra}`;
-  return style?`<span class="lab" ${style}>${b}</span>`:b;
+  return style?`<span class="lab" style="${style}">${b}</span>`:b;
+}
+function shapeSvg(sh){
+  if(sh.type==="rect")return{ar:"320/200",svg:`<svg viewBox="0 0 320 200" aria-hidden="true"><rect x="50" y="30" width="220" height="140" fill="none" stroke="currentColor" stroke-width="2"/></svg>`};
+  if(sh.type==="circle")return{ar:"320/220",svg:`<svg viewBox="0 0 320 220" aria-hidden="true"><circle cx="160" cy="110" r="90" fill="none" stroke="currentColor" stroke-width="2"/><line x1="76" y1="110" x2="244" y2="110" stroke="currentColor" stroke-width="1.5"/><polygon points="70,110 80,105 80,115" fill="currentColor"/><polygon points="250,110 240,105 240,115" fill="currentColor"/><circle cx="160" cy="110" r="3" fill="currentColor"/></svg>`};
+  return{ar:"320/220",svg:`<svg viewBox="0 0 320 220" aria-hidden="true"><polygon points="250,110 205,188 115,188 70,110 115,32 205,32" fill="none" stroke="currentColor" stroke-width="2"/></svg>`};
 }
 function questionHtml(k){
-  const it=ITEMS[k],toks=all(it); let n=0,h="";
-  if(it.rect){
-    h+=`<div class="diagram" style="aspect-ratio:320/200"><svg viewBox="0 0 320 200" aria-hidden="true"><rect x="50" y="30" width="220" height="140" fill="none" stroke="currentColor" stroke-width="2"/></svg>`;
-    it.rect.labels.forEach(l=>{h+=word(k,toks[n],n,`style="left:${l.x}%;top:${l.y}%"`);n++});
-    h+=`</div>`;
-  }
+  const it=G.items[k],toks=allToks(it);let n=0,h="";
+  if(it.shape){const s=shapeSvg(it.shape);h+=`<div class="diagram" style="aspect-ratio:${s.ar}">${s.svg}`;it.shape.labels.forEach(l=>{h+=word(k,toks[n],n,`left:${l.x}%;top:${l.y}%`);n++});h+=`</div>`}
   h+=lines(it).map(line=>"<p>"+line.map(t=>t.space?" ":word(k,toks[n],n++)).join("")+"</p>").join("");
-  if(open!==null&&toks[open]&&toks[open].why&&S[k].phase!=="read")h+=`<div class="why"><b>Why "${toks[open].t}" matters</b>${toks[open].why}</div>`;
+  if(G.open!==null&&toks[G.open]&&toks[G.open].why&&G.S[k].phase!=="read")h+=`<div class="why"><b>Why "${toks[G.open].t}" matters</b>${toks[G.open].why}</div>`;
   return h;
 }
-function unitInput(k,disabled){
-  const it=ITEMS[k],st=S[k];
-  if(it.boss)return"";
-  if(it.fixed)return`<span class="unit">${it.fixed}</span>`;
-  if(lv===1)return`<span class="unit">${it.unit}</span>`;
-  if(lv===2)return it.units.map(u=>disabled?`<span class="chip">${u}</span>`:`<button class="chip ${st.picked===u?'on':''}" data-u="${u}">${u}</button>`).join("");
-  return`<input class="u" id="u" placeholder="unit" aria-label="Unit" value="${st.unit&&!disabled?st.unit:""}" ${disabled?"disabled":""}>`;
+function lifelineBar(k){
+  const it=G.items[k];
+  const btn=(id,enabled,label)=>{
+    const free=id==="point"&&G.pointFree&&!G.pointFreeUsed;
+    const usable=enabled&&(!G.used[id]||free);
+    return `<button class="life ${free?'free':''}" data-life="${id}" ${usable?"":"disabled"} title="${LIFE[id].name}">${LIFE[id].ic} ${label||LIFE[id].name}${free?" (free)":""}</button>`;
+  };
+  return `<div class="step">Lifelines · −${COST} each, once per set</div><div class="lifelines">
+    ${btn("friend",true)}${btn("fifty",!it.boss)}${btn("four",!it.boss)}${btn("aud",!it.boss)}${btn("point",it.boss)}</div>`;
 }
-const PRICES=[{l:"Fence",p:"£9 per m"},{l:"Slabs",p:"£24 a pack"},{l:"Gardeners",p:"£120 a day"},{l:"Turf",p:"£4 per m²"}];
-const W={c:["","","",""],total:""};
+function optionsFor(it,n){
+  const pool=[it.answer,...it.wrong.slice(0,n-1)];
+  return pool.sort((a,b)=>((a*7919)%13)-((b*7919)%13));
+}
+function lifelineOutput(k){
+  const it=G.items[k],st=G.S[k];let h="";
+  if(st.friend)h+=`<div class="friend"><b>📞 Your friend says:</b>${it.friend}</div>`;
+  if(st.opts)h+=`<div class="opts">${st.opts.map(v=>`<button class="opt ${same(num(st.num),v)?'on':''}" data-opt="${v}">${fmt(v,it)}</button>`).join("")}</div>`;
+  if(st.aud)h+=`<div class="aud"><div class="step">👥 What the audience said</div>${st.aud.map(([v,p])=>`<div class="r"><span>${fmt(v,it)}</span><span class="b" style="width:${p}%"></span><span>${p}%</span></div>`).join("")}</div>`;
+  return h;
+}
+function answerRow(k){
+  const it=G.items[k],st=G.S[k];
+  return `<div class="ans">${it.pre?`<span class="pound">${it.pre}</span>`:""}<input id="a" inputmode="decimal" placeholder="Answer" aria-label="Your answer" value="${st.num}">${it.unit?`<span class="unit">${it.unit}</span>`:""}</div>`;
+}
 function workPanel(){
-  const rows=ITEMS.slice(0,NM).map((it,k)=>`
-    <div class="wrow">
-      <span><span class="lbl">Mission ${k+1} · ${PRICES[k].l}</span><br>
-      <span class="val">${S[k].num||"—"} ${S[k].num?(it.fixed||S[k].unit):""}</span> <span class="lbl">× ${PRICES[k].p}</span></span>
-      <span class="ans" style="gap:6px"><span class="pound">£</span><input class="u" id="w${k}" inputmode="decimal" aria-label="${PRICES[k].l} cost" value="${W.c[k]}"></span>
-      ${detective?`<button class="mini" data-recheck="${k}">Recheck mission</button>`:""}
-    </div>`).join("");
+  const b=G.items[G.NM];
+  const pt=G.pointMode;
+  const pbtn=id=>pt?`<button class="mini point" data-point="${id}">🎯 Is it this?</button>`:"";
+  const rows=b.rows.map((r,j)=>{
+    const m=G.items[r.k],st=G.S[r.k];
+    return `<div class="wrow"><span><span class="lbl">Mission ${r.k+1} · ${r.label}</span><br>
+      <span class="val">${st.num?fmt(num(st.num),m):"—"}</span> <span class="lbl">${r.mt}</span></span>
+      <span class="ans">${b.pre?`<span class="pound">${b.pre}</span>`:""}<input id="w${j}" inputmode="decimal" aria-label="${r.label}" value="${G.W.c[j]}">${b.unit?`<span class="unit">${b.unit}</span>`:""}</span>
+      ${(G.detective||pt)?`<span class="acts">${pbtn("m"+r.k)}${pbtn("w"+j)}${G.detective&&!pt?`<button class="mini" data-recheck="${r.k}">Recheck mission</button>`:""}</span>`:""}
+    </div>`;}).join("");
+  const box=(id,val,aria)=>`<span class="ans">${b.pre?`<span class="pound">${b.pre}</span>`:""}<input id="${id}" inputmode="decimal" aria-label="${aria}" value="${val}">${b.unit?`<span class="unit">${b.unit}</span>`:""}</span>`;
   return `<div class="step">Working out</div><div class="list">${rows}
-    <div class="wrow"><span class="lbl">Total spent</span><span class="ans" style="gap:6px"><span class="pound">£</span><input class="u" id="wt" inputmode="decimal" aria-label="Total spent" value="${W.total}"></span></div>
-    <div class="wrow"><span class="lbl">£1,200 − total<br><b>= money left</b></span><span class="ans" style="gap:6px"><span class="pound">£</span><input class="u" id="a" inputmode="decimal" aria-label="Money left" value="${S[NM].num}"></span></div>
-  </div>`;
+    <div class="wrow"><span class="lbl">Total used</span>${box("wt",G.W.total,"Total")}${pt?`<span class="acts">${pbtn("t")}</span>`:""}</div>
+    <div class="wrow"><span class="lbl">${b.st} − total<br><b>= left</b></span>${box("a",G.S[G.NM].num,"Amount left")}${pt?`<span class="acts">${pbtn("f")}</span>`:""}</div>
+  </div>${pt?`<p class="note">Tap 🎯 on the part you think is wrong. "Mission" buttons check your mission answer; the others check your sum on that line.</p>`:""}${G.pointMsg}`;
 }
-
-function render(){
-  $("dots").innerHTML=ITEMS.map((_,n)=>`<span class="dot ${n<=Math.min(view,NM)?'on':''}"></span>`).join("");
-  $("lvnote").textContent=LVNOTE[lv];
-  if(view==="done")return renderDone();
-  const k=recheck!==null?recheck:view, it=ITEMS[k], st=S[k], total=keyTotal(it), f=found(k);
-  let b=it.boss?`<span class="tag">Boss question</span>`:`<div class="step">${recheck!==null?"Rechecking ":""}Mission ${k+1} of ${NM} · ${it.title}</div>`;
+function renderPlay(){
+  const dots=G.items.map((_,n)=>`<span class="dot ${(G.view==="done"||n<=G.view)?'on':''}"></span>`).join("");
+  const top=`<header><h1>${G.set.emoji} ${G.set.name}</h1><div class="dots">${dots}</div></header>
+    <div class="bar"><button class="link" id="home">← All missions</button>
+    <div class="tally"><span class="pill">🎯 Score <b>${G.score}</b></span><span class="pill s">Lifelines <b>${Object.keys(G.used).length}</b></span><span class="pill b">Boss tries <b>${G.tries}</b></span></div></div>`;
+  if(G.view==="done")return renderDone(top);
+  const k=G.recheck!==null?G.recheck:G.view, it=G.items[k], st=G.S[k], T=TOPICS[it.topic];
+  let b=`<span class="topic ${T.cls}">${T.name}</span>`;
+  b+=it.boss?`<span class="tag">Boss question</span>`:`<div class="step">${G.recheck!==null?"Rechecking ":""}Mission ${k+1} of ${G.NM} · ${it.title}</div>`;
   b+=`<div class="q">${questionHtml(k)}</div>`;
-
-  const open1=st.phase==="read";
+  const total=keyTotal(it),f=found(k),open1=st.phase==="read";
   b+=`<div class="finder"><span>${open1?"🔍 Tap any word or number you think matters (optional)":f===total?`🌟 All ${total} key details found`:`Found ${f} of ${total}. Tap <b>i</b> on the dashed ones to see why they matter.`}</span>${open1?`<b>${f} found</b>`:""}</div>`;
-  if(open1&&popMsg)b+=`<div class="pop">${popMsg}</div>`;
-  if(st.hint)b+=`<div class="hintbox"><b>Hint:</b> ${it.hint}</div>`;
-  const hintBtn=st.hint?"":`<button class="btn ghost" id="hint">💡 Hint (−5)</button>`;
-
+  if(open1&&G.pop)b+=`<p class="pop">${G.pop}</p>`;
   if(it.boss){
-    b+=workPanel();
-    b+=`${bossMsg}<button class="btn" id="boss">Submit to the boss 👹</button>${hintBtn}`;
-    return paint(b);
+    b+=workPanel()+lifelineOutput(k)+G.bossMsg+`<button class="btn" id="boss">Submit to the boss 👹</button>`+lifelineBar(k);
+  } else {
+    b+=lifelineOutput(k)+answerRow(k)+(G.err?`<p class="err">${G.err}</p>`:"");
+    if(st.showChecks)b+=`<div class="checks">${it.checks.map((c,j)=>`<label><input type="checkbox" id="c${k}_${j}"><span>${c}</span></label>`).join("")}</div>`;
+    b+=`<button class="btn" id="save">${G.recheck!==null?"Save and back to the boss":"Save answer"}</button>
+        <button class="btn ghost" id="checks">${st.showChecks?"Hide checklist":"✋ Quick check (optional)"}</button>`+lifelineBar(k);
   }
-  b+=`<div class="ans"><input id="a" inputmode="decimal" placeholder="Answer" aria-label="Your answer" value="${st.num}">${unitInput(k,false)}</div>
-      ${err?`<p class="err">${err}</p>`:""}`;
-  if(st.showChecks) b+=`<div class="checks">${it.checks.map((c,j)=>`<label><input type="checkbox" id="c${k}_${j}"><span>${c}</span></label>`).join("")}</div>`;
-  b+=`<button class="btn" id="save">${recheck!==null?"Save and back to the boss":"Save answer"}</button>
-      <button class="btn ghost" id="checks">${st.showChecks?"Hide checklist":"✋ Quick check (optional)"}</button>${hintBtn}`;
-  paint(b);
+  app.innerHTML=top+`<div class="card top ${T.cls}" id="card">${b}</div>`;
+  wire(k);
 }
-function paint(b){card.innerHTML=b;card.classList.toggle("boss",view===NM);wire()}
-
-function renderDone(){
-  const rows=ITEMS.slice(0,NM).map((it,k)=>`<div class="row"><span class="lbl">Mission ${k+1} · ${it.title}</span>
-    <span>first try ${S[k].first&&S[k].first.ok?'<span class="ok">✓</span>':'<span class="no">✗</span>'}</span></div>`).join("");
-  paint(`<span class="tag">Mission complete</span><div><p class="big">${score}</p><p class="lbl" style="margin:4px 0 0">final score</p></div>
-    <div class="list"><div class="row"><span class="lbl">Boss tries</span><span class="val">${bossTries}</span></div>
-    <div class="row"><span class="lbl">Hints used</span><span class="val">${hints}</span></div></div>
+function renderDone(top){
+  const key=`mm-best-${G.set.id}-${G.vi}`, prev=Number(store.get(key)||0);
+  if(G.score>prev)store.set(key,G.score);
+  const rows=G.items.slice(0,G.NM).map((it,k)=>`<div class="row"><span><span class="topic ${TOPICS[it.topic].cls}">${TOPICS[it.topic].name}</span><br><span class="lbl">Mission ${k+1} · ${it.title}</span></span>
+    <span>first try ${G.S[k].first&&G.S[k].first.ok?'<span class="ok">✓</span>':'<span class="no">✗</span>'}</span></div>`).join("");
+  app.innerHTML=top+`<div class="card top t-boss"><span class="tag">Mission complete</span>
+    <div><p class="big">${G.score}</p><p class="lbl" style="margin:4px 0 0">final score${G.score>prev?" · new best! 🏆":prev?` · best ${prev}`:""}</p></div>
+    <div class="list"><div class="row"><span class="lbl">Boss tries</span><span class="val">${G.tries}</span></div>
+    <div class="row"><span class="lbl">Lifelines used</span><span class="val">${Object.keys(G.used).map(x=>LIFE[x].ic).join(" ")||"none"}</span></div></div>
     <div class="step">How your first answers did</div><div class="list">${rows}</div>
-    <button class="btn" id="again">Play again</button>`);
+    <button class="btn" id="again">Play again</button>
+    <button class="btn ghost" id="other">Try Version ${G.vi===0?2:1}</button>
+    <button class="btn ghost" id="home2">All missions</button></div>`;
+  $("home").onclick=$("home2").onclick=()=>{screen="home";render()};
+  $("again").onclick=()=>newGame(G.si,G.vi);
+  $("other").onclick=()=>newGame(G.si,G.vi===0?1:0);
 }
 
-function wire(){
-  const k=recheck!==null?recheck:view; if(view==="done"){ $("again").onclick=()=>location.reload(); return; }
-  const it=ITEMS[k],st=S[k],toks=all(it);
-  const keep=()=>{if($("a"))st.num=$("a").value;if($("u"))st.unit=$("u").value;for(let j=0;j<4;j++)if($("w"+j))W.c[j]=$("w"+j).value;if($("wt"))W.total=$("wt").value};
-  card.querySelectorAll(".w").forEach(el=>el.onclick=()=>{
-    if(st.phase!=="read")return; const n=+el.dataset.n; if(st.taps[n])return; keep();
-    if(toks[n].key){st.taps[n]="found";addScore(1);popMsg="+1 good spot"}else{st.taps[n]="miss";addScore(-1);popMsg="Not a key detail (−1)"}
+/* ---------- Wiring ---------- */
+function wire(k){
+  const it=G.items[k],st=G.S[k],toks=allToks(it);
+  const keep=()=>{if($("a"))st.num=$("a").value;G.W.c.forEach((_,j)=>{if($("w"+j))G.W.c[j]=$("w"+j).value});if($("wt"))G.W.total=$("wt").value};
+  $("home").onclick=()=>{screen="home";render()};
+  app.querySelectorAll(".w").forEach(el=>el.onclick=()=>{
+    if(st.phase!=="read")return;const n=+el.dataset.n;if(st.taps[n])return;keep();
+    if(toks[n].key){st.taps[n]="found";addScore(1);G.pop="+1 good spot"}else{st.taps[n]="miss";addScore(-1);G.pop="Not a key detail (−1)"}
     render();
   });
-  card.querySelectorAll(".info").forEach(el=>el.onclick=()=>{keep();const n=+el.dataset.why;open=open===n?null:n;render()});
-  card.querySelectorAll("[data-u]").forEach(el=>el.onclick=()=>{keep();st.picked=el.dataset.u;render()});
-  card.querySelectorAll("[data-recheck]").forEach(el=>el.onclick=()=>{keep();recheck=+el.dataset.recheck;open=null;err="";render();window.scrollTo(0,0)});
-  if($("hint"))$("hint").onclick=()=>{keep();st.hint=true;hints++;addScore(-5);render()};
+  app.querySelectorAll(".info").forEach(el=>el.onclick=()=>{keep();const n=+el.dataset.why;G.open=G.open===n?null:n;render()});
+  app.querySelectorAll("[data-opt]").forEach(el=>el.onclick=()=>{st.num=el.dataset.opt;render()});
+  app.querySelectorAll("[data-recheck]").forEach(el=>el.onclick=()=>{keep();G.recheck=+el.dataset.recheck;G.open=null;G.err="";G.pointMsg="";render();window.scrollTo(0,0)});
+  app.querySelectorAll("[data-life]").forEach(el=>el.onclick=()=>{
+    keep();const id=el.dataset.life;
+    const free=id==="point"&&G.pointFree&&!G.pointFreeUsed;
+    if(free)G.pointFreeUsed=true;else{G.used[id]=true;addScore(-COST)}
+    if(id==="friend")st.friend=true;
+    if(id==="fifty")st.opts=optionsFor(it,2);
+    if(id==="four")st.opts=optionsFor(it,4);
+    if(id==="aud"){const w=it.wrong;st.aud=[[it.answer,52],[w[0],27],[w[1],14],[w[2],7]]}
+    if(id==="point"){G.pointMode=true;G.pointMsg=""}
+    render();
+  });
+  app.querySelectorAll("[data-point]").forEach(el=>el.onclick=()=>{
+    keep();const id=el.dataset.point,B=G.items[G.NM];let bad=false,what="";
+    if(id[0]==="m"){const mk=+id.slice(1);bad=!isRight(mk);what=`Mission ${mk+1}`}
+    else if(id[0]==="w"){const j=+id.slice(1),r=B.rows[j];bad=!same(num(G.W.c[j]),r2(num(G.S[r.k].num)*r.mul));what=`your ${r.label.toLowerCase()} sum`}
+    else if(id==="t"){const s=G.W.c.reduce((t,v)=>t+num(v),0);bad=!same(num(G.W.total),r2(s));what="your total"}
+    else {bad=!same(num(G.S[G.NM].num),r2(B.start-num(G.W.total)));what="your last take-away"}
+    G.pointMode=false;
+    G.pointMsg=`<div class="fb ${bad?'bad':'good'}"><h3>${bad?"🎯 YES, there's a problem in "+what:"🎯 NO, "+what+" is fine"}</h3><p>${bad?"Dig into that bit.":"Look somewhere else."}</p></div>`;
+    render();
+  });
   if($("checks"))$("checks").onclick=()=>{keep();st.showChecks=!st.showChecks;render()};
   if($("save"))$("save").onclick=()=>{
-    keep(); st.num=st.num.trim();
-    const u=it.fixed?"":lv===1?it.unit:lv===2?st.picked:normUnit(st.unit);
-    if(isNaN(num(st.num))){err="Type a number first.";return render()}
-    if(it.unit&&!u){err="Add a unit too.";return render()}
-    st.unit=u; err=""; popMsg=""; open=null;
-    if(st.phase==="read"){ if(found(k)===keyTotal(it)&&!st.bonus){st.bonus=true;addScore(3)} st.phase="saved"; }
-    if(recheck!==null){recheck=null;return render()}
-    st.first={ok:isRight(k)}; view++; render(); window.scrollTo(0,0);
+    keep();st.num=String(st.num).trim();
+    if(isNaN(num(st.num))){G.err="Type a number first.";return render()}
+    G.err="";G.pop="";G.open=null;
+    if(st.phase==="read"){if(found(k)===keyTotal(it)&&!st.bonus){st.bonus=true;addScore(3)}st.phase="saved"}
+    if(G.recheck!==null){G.recheck=null;G.bossMsg="";return render()}
+    st.first={ok:isRight(k)};G.view++;render();window.scrollTo(0,0);
   };
   if($("boss"))$("boss").onclick=()=>{
-    keep(); st.num=st.num.trim();
-    if(st.phase==="read"){ if(found(k)===keyTotal(it)&&!st.bonus){st.bonus=true;addScore(3)} st.phase="saved"; popMsg=""; }
-    if(isNaN(num(st.num))){bossMsg=`<p class="err">Type an amount first.</p>`;return render()}
-    bossTries++;
-    if(Math.abs(num(st.num)-it.answer)<1e-9){view="done";return render()}
-    addScore(-10);detective=true;
-    bossMsg=`<div class="fb bad"><h3>❌ Something doesn't add up (−10)</h3><p>You're <b>£${Math.abs(num(st.num)-it.answer).toLocaleString()} ${num(st.num)>it.answer?"too high":"too low"}</b>. 🕵️ Which part could be out by that much? Check your working, or tap <b>Recheck mission</b>.</p></div>`;
+    keep();st.num=String(st.num).trim();
+    if(st.phase==="read"){if(found(k)===keyTotal(it)&&!st.bonus){st.bonus=true;addScore(3)}st.phase="saved";G.pop=""}
+    if(isNaN(num(st.num))){G.bossMsg=`<p class="err">Type what's left in the last box first.</p>`;return render()}
+    G.tries++;G.pointMsg="";
+    if(same(num(st.num),it.answer)){G.view="done";return render()}
+    addScore(-10);G.detective=true;
+    if(G.tries>=3&&!G.pointFree)G.pointFree=true;
+    const diff=r2(num(st.num)-it.answer);
+    G.bossMsg=`<div class="fb bad"><h3>❌ Something doesn't add up (−10)</h3><p>You're <b>${fmt(Math.abs(diff),it)} ${diff>0?"too high":"too low"}</b>. 🕵️ Which part could be out by that much? Check your working, or tap <b>Recheck mission</b>.${G.pointFree&&!G.pointFreeUsed?" <b>🎯 Point at it</b> is now free.":""}</p></div>`;
     render();
   };
 }
-document.querySelectorAll("#levels .chip").forEach(b=>b.onclick=()=>{
-  lv=+b.dataset.lv;document.querySelectorAll("#levels .chip").forEach(x=>x.classList.toggle("on",x===b));
-  S.forEach(s=>{s.picked=""});render();
-});
+function render(){screen==="home"?renderHome():renderPlay()}
 render();
 </script>
