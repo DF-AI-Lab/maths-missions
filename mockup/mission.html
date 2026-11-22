@@ -177,7 +177,9 @@ function render(){
   let body=`<div class="step">Mission ${i+1} of ${Q.length}</div><div class="q">${html}</div>`;
 
   if(phase==="read"){
-    body+=`<div class="finder"><span>🔍 Tap the key details for bonus points</span><b>${found} found</b></div>
+    const prev = !q.unit ? "" : lv===1 ? `<span class="unit">${q.unit}</span>` : lv===2 ? q.units.map(u=>`<span class="chip">${u}</span>`).join("") : `<input class="u" placeholder="unit" disabled aria-label="Unit preview">`;
+    body+=`<div class="ans" style="opacity:.5"><input disabled placeholder="Answer" aria-label="Answer preview">${prev}</div>
+      <div class="finder"><span>🔍 Tap any word or number you think matters</span><b>${found} found</b></div>
       <div class="pop">${popMsg}</div>
       <button class="btn" id="go">I'm ready to answer</button>`;
   } else {
