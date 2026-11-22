@@ -1,0 +1,481 @@
+<title>Garden Mission</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Lexend:wght@400;600&display=swap">
+<style>
+/* Layout: one narrow column. Plan + notebook at the top, one job card at a time below. */
+:root{
+  --bg:#f2f6f0; --surface:#ffffff; --ink:#17221a; --muted:#56685a; --line:#d4dfd3;
+  --leaf:#2f7d4a; --leaf-soft:#dcecdf; --soil:#8a5a35; --water:#2a7fb8; --sun:#c9890f;
+  --bad:#c2412d; --bad-soft:#fbe5e0; --good-soft:#dcecdf;
+  --display:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --body:"Lexend",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1612; --surface:#17211a; --ink:#e8f0e9; --muted:#9bb0a0; --line:#2a3a2e;
+  --leaf:#5cc27e; --leaf-soft:#1f3526; --soil:#c48a5c; --water:#5fb0e6; --sun:#f0b94a;
+  --bad:#ff7a63; --bad-soft:#3a1f1a; --good-soft:#1f3526; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1612; --surface:#17211a; --ink:#e8f0e9; --muted:#9bb0a0; --line:#2a3a2e;
+  --leaf:#5cc27e; --leaf-soft:#1f3526; --soil:#c48a5c; --water:#5fb0e6; --sun:#f0b94a;
+  --bad:#ff7a63; --bad-soft:#3a1f1a; --good-soft:#1f3526; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55}
+.wrap{max-width:640px;margin:0 auto;padding-block:20px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:18px}
+h1,h2{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:2rem;font-weight:800}
+h2{font-size:1.35rem;font-weight:800}
+p{margin:0}
+.muted{color:var(--muted)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.badge{font-size:.8rem;letter-spacing:.04em;text-transform:uppercase;background:var(--leaf-soft);color:var(--leaf);
+  padding:4px 10px;border-radius:999px;font-weight:600}
+.bar{height:10px;background:var(--line);border-radius:999px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--leaf);width:0;transition:width .3s}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px}
+details.card{gap:0}
+details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between}
+details summary::after{content:"Show";color:var(--muted);font-weight:400;font-size:.9rem}
+details[open] summary::after{content:"Hide"}
+details[open] summary{margin-bottom:12px}
+svg.plan{width:100%;height:auto;max-width:100%}
+.notes{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none;font-variant-numeric:tabular-nums}
+.notes li{display:flex;gap:8px}
+.step-no{font-size:.85rem;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.story{font-size:1.05rem}
+.q{font-weight:600;font-size:1.1rem}
+label.lbl{font-weight:600;font-size:.95rem;display:block;margin-bottom:6px}
+textarea,input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+textarea{min-height:70px;resize:vertical}
+textarea:focus,input:focus{outline:none;border-color:var(--leaf)}
+.fields{display:flex;flex-wrap:wrap;gap:12px}
+.field{flex:1 1 140px;min-width:0}
+.inrow{display:flex;align-items:center;gap:8px}
+.inrow span{font-weight:600;color:var(--muted)}
+input.ok{border-color:var(--leaf);background:var(--good-soft)}
+input.no{border-color:var(--bad);background:var(--bad-soft)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font:inherit;font-weight:600;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 16px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--leaf);background:var(--leaf-soft);color:var(--leaf)}
+.checks{border:2px dashed var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.checks b{font-size:.95rem}
+.checks label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.checks input{width:20px;height:20px;margin-top:3px;accent-color:var(--leaf);flex:none}
+.btn{font:inherit;font-weight:600;font-size:1.05rem;border:0;border-radius:12px;padding:12px 20px;cursor:pointer;background:var(--leaf);color:var(--surface)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--leaf);border:2px solid var(--leaf)}
+.btn:focus-visible,.chip:focus-visible,summary:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.fb{border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.fb.good{background:var(--good-soft)}
+.fb.bad{background:var(--bad-soft)}
+.fb ul{margin:0;padding-left:20px}
+.rules{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
+.stat{background:var(--bg);border-radius:12px;padding:12px 6px}
+.stat b{display:block;font-family:var(--display);font-size:1.8rem}
+.stat span{font-size:.85rem;color:var(--muted)}
+.log{width:100%;border-collapse:collapse;font-size:.95rem}
+.log td{padding:6px 4px;border-top:1px solid var(--line);vertical-align:top}
+.tablewrap{overflow-x:auto}
+@media (prefers-reduced-motion: reduce){.bar>i{transition:none}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <h1>Garden Mission 🌱</h1>
+    <span class="badge">π = 3 · no calculator</span>
+  </div>
+  <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+
+  <details class="card" id="planBox" open>
+    <summary>Garden plan</summary>
+    <div id="plan"></div>
+    <p class="muted" style="font-size:.85rem">Not to scale</p>
+  </details>
+
+  <!-- Intro -->
+  <section class="card" id="intro">
+    <h2>You're building a garden</h2>
+    <p>13 jobs. Lawn, pond, turf, fence, a raised bed and some plants.</p>
+    <ul class="rules">
+      <li>Every answer goes in your <b>notebook</b> and gets used later 📒</li>
+      <li>Before each Check, tick your <b>double checks</b> ✅</li>
+      <li>Wrong once? You get a hint and another go 🔁</li>
+      <li>Pen and paper. Write the whole line ✍️</li>
+    </ul>
+    <div class="row">
+      <button class="btn" id="startBtn">Start the mission</button>
+      <button class="btn ghost" id="newBtn">New numbers</button>
+    </div>
+  </section>
+
+  <!-- Notebook -->
+  <section class="card" id="notebook" hidden>
+    <b>📒 Notebook</b>
+    <ul class="notes" id="notes"></ul>
+  </section>
+
+  <!-- Step -->
+  <section class="card" id="stepCard" hidden>
+    <p class="step-no" id="stepNo"></p>
+    <h2 id="stepTitle"></h2>
+    <p class="story" id="stepStory"></p>
+    <p class="q" id="stepQ"></p>
+    <div>
+      <label class="lbl" for="work">Working out (write the whole line ✍️)</label>
+      <textarea id="work" placeholder="e.g. 3 × 2 × 2 = 12"></textarea>
+    </div>
+    <div class="fields" id="fields"></div>
+    <div id="unitBox" hidden>
+      <p class="lbl">Unit</p>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="checks" id="checks"></div>
+    <div id="fb" hidden></div>
+    <div class="row">
+      <button class="btn" id="checkBtn" disabled>Check</button>
+      <button class="btn" id="nextBtn" hidden>Next job →</button>
+    </div>
+  </section>
+
+  <!-- Summary -->
+  <section class="card" id="summary" hidden></section>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const gcd = (a, b) => b ? gcd(b, a % b) : a;
+const near = (a, b) => typeof a === 'number' && Math.abs(a - b) < 0.005;
+const fmt = n => n.toLocaleString('en-GB', { maximumFractionDigits: 2 });
+const money = n => '£' + (Number.isInteger(n) ? fmt(n) : n.toFixed(2));
+function shuffle(a){ a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+const HEIGHTS = [[30,30,45,60,85],[20,20,35,50,75],[25,25,40,55,80],[15,30,45,60,60],[20,40,45,70,70]];
+const U1 = ['m', 'm²', 'm³'];
+const UL = ['ml', 'litres'];
+const GENERIC = { type: 'Other slip', msg: 'Not quite. Run <b>R.W.S.</b>: Read it twice 👀 Write the whole line ✍️ Sense check 🤔' };
+
+function gen(){
+  const n = { L: pick([6,8,10,12]), W: pick([4,5,6]), r: pick([1,2]), pondAs: pick(['r','d']),
+    price: pick([2,4,5]), disc: pick([10,20,25]), bedL: pick([2,3,4]), k: pick([3,4]) };
+  n.d = n.r * 2; n.lawn = n.L * n.W; n.pond = 3 * n.r * n.r; n.turf = n.lawn - n.pond;
+  n.cost = n.turf * n.price; n.save = n.cost * n.disc / 100; n.sale = n.cost - n.save;
+  n.per = 2 * (n.L + n.W); n.panels = n.per / 2;
+  n.vol = n.bedL * 0.5; n.litres = n.vol * 1000; n.compost = n.litres / (n.k + 1); n.soil = n.litres - n.compost;
+  const g = gcd(n.pond, n.lawn); n.g = g; n.fp = n.pond / g; n.fq = n.lawn / g;
+  const h = pick(HEIGHTS); let sh; do { sh = shuffle(h); } while (sh.join() === h.join());
+  n.heights = sh; n.sorted = h; n.hsum = h.reduce((a, b) => a + b, 0); n.mean = n.hsum / 5; n.median = h[2];
+  n.mode = h.find((x, i) => h.indexOf(x) !== i);
+  return n;
+}
+
+function pctLine(n){
+  if (n.disc === 10) return `10% = ${money(n.cost)} ÷ 10 = ${money(n.save)}`;
+  if (n.disc === 20) return `10% = ${money(n.cost / 10)}, so 20% = × 2 = ${money(n.save)}`;
+  return `25% = a quarter = ${money(n.cost)} ÷ 4 = ${money(n.save)}`;
+}
+
+function buildSteps(n){
+  return [
+  { title: 'Lay the lawn', story: `The lawn is a rectangle, <b>${n.L} m</b> long and <b>${n.W} m</b> wide.`,
+    q: 'What is the area of the lawn?', fields: [{ id: 'a' }], units: U1, unit: 'm²', ans: { a: n.lawn },
+    checks: ['I multiplied length × width', 'Flat space inside = m²'],
+    hint: v => near(v.a, n.per) ? { type: 'Area vs perimeter', msg: "That's the fence all the way round (perimeter). Area is the flat space inside: length × width." }
+      : near(v.a, n.L + n.W) ? { type: 'Added instead of multiplied', msg: 'You added the sides. Area means multiply them.' } : null,
+    explain: [`${n.L} × ${n.W} = <b>${n.lawn} m²</b>`], note: `Lawn area = ${n.lawn} m²` },
+
+  { title: 'Reverse check ✅', story: 'Before you dig in, check the lawn area works backwards.',
+    q: 'Lawn area ÷ length = ?', fields: [{ id: 'a' }], units: U1, unit: 'm', ans: { a: n.W },
+    checks: ['I used the lawn area from my notebook', 'Sense check: it should give me the width back'],
+    hint: v => near(v.a, n.L) ? { type: 'Copied wrong number', msg: "That's the length. Divide the area by the length." } : null,
+    explain: [`${n.lawn} ÷ ${n.L} = <b>${n.W} m</b>`, 'It matches the width, so the area was right ✅'], note: `Area checks out (${n.lawn} ÷ ${n.L} = ${n.W})` },
+
+  { title: 'Dig the pond', story: n.pondAs === 'r' ? `A round pond goes in the lawn. Its <b>radius is ${n.r} m</b>.` : `A round pond goes in the lawn. It is <b>${n.d} m across</b>.`,
+    q: 'What is the area of the pond? Use π = 3.', fields: [{ id: 'a' }], units: U1, unit: 'm²', ans: { a: n.pond },
+    checks: ['Radius or diameter? I used the RADIUS', "One π, two r's (π × r × r)", 'Area = m²'],
+    hint: v => near(v.a, 3 * n.d * n.d) ? { type: 'Used diameter not radius', msg: '"Across" is the diameter. Halve it first to get the radius.' }
+      : (near(v.a, 3 * n.d) || near(v.a, 3 * n.r)) ? { type: 'Area vs circumference', msg: "That's the belt (circumference). Area is the pizza inside: π × r × r." }
+      : near(v.a, 9 * n.r) ? { type: 'Used π twice', msg: "You used π twice. It's one π and two r's." }
+      : (near(v.a, n.r * n.r) || near(v.a, n.d * n.d)) ? { type: 'Forgot π', msg: 'You forgot the × 3 (π) at the end.' } : null,
+    explain: [n.pondAs === 'd' ? `Across = diameter = ${n.d} m, so radius = ${n.d} ÷ 2 = ${n.r} m` : `Radius = ${n.r} m`, `${n.r} × ${n.r} = ${n.r * n.r}, then × 3 = <b>${n.pond} m²</b> (π last 🥧)`],
+    note: `Pond area = ${n.pond} m²` },
+
+  { title: 'How much is pond?', story: 'The pond takes up part of the lawn.',
+    q: 'What fraction of the lawn is pond? Simplest form, e.g. 1/4', fields: [{ id: 'a', type: 'frac' }], ans: { a: [n.fp, n.fq] },
+    checks: ['Part on top, whole on bottom', 'Same number top AND bottom each time', "Can't simplify any more (halve, then try 3, 5, 7)"],
+    hint: v => { const [p, q] = v.a;
+      if (p * n.fq === q * n.fp) return { type: 'Not fully simplified', msg: 'Right value, but it can be simplified more. Keep dividing top and bottom.' };
+      if (p * n.pond === q * n.lawn) return { type: 'Fraction upside down', msg: 'Upside down. The part (pond) goes on top, the whole (lawn) on the bottom.' };
+      return null; },
+    explain: [`pond ÷ lawn = ${n.pond}/${n.lawn}`, n.g > 1 ? `÷ ${n.g} top and bottom → <b>${n.fp}/${n.fq}</b>` : `It won't simplify → <b>${n.fp}/${n.fq}</b>`, n.g > 1 ? `Reverse check: ${n.fp} × ${n.g} = ${n.pond}, ${n.fq} × ${n.g} = ${n.lawn} ✅` : ''],
+    note: `Pond = ${n.fp}/${n.fq} of the lawn` },
+
+  { title: 'Order the turf', story: 'Turf goes on the lawn, but <b>not</b> on the pond.',
+    q: 'How many m² of turf do you need?', fields: [{ id: 'a' }], units: U1, unit: 'm²', ans: { a: n.turf },
+    checks: ['Lawn TAKE AWAY pond', 'Used the numbers in my notebook', 'Area = m²'],
+    hint: v => near(v.a, n.lawn + n.pond) ? { type: 'Added instead of took away', msg: 'You added the pond on. Take it away.' }
+      : near(v.a, n.lawn) ? { type: 'Missed a step', msg: "That's the whole lawn. Take the pond away." } : null,
+    explain: [`${n.lawn} − ${n.pond} = <b>${n.turf} m²</b>`], note: `Turf = ${n.turf} m²` },
+
+  { title: 'Pay for the turf', story: `Turf costs <b>£${n.price} per m²</b>.`,
+    q: 'What is the full price of the turf?', fields: [{ id: 'a', prefix: '£' }], ans: { a: n.cost },
+    checks: ['Turf area, not the whole lawn', 'Wrote the whole line first'],
+    hint: v => near(v.a, n.lawn * n.price) ? { type: 'Copied wrong number', msg: 'You used the whole lawn. Use the turf area from your notebook.' } : null,
+    explain: [`${n.turf} × £${n.price} = <b>${money(n.cost)}</b>`], note: `Turf full price = ${money(n.cost)}` },
+
+  { title: 'Garden centre sale', story: `The garden centre has <b>${n.disc}% off</b>.`,
+    q: 'How much do you pay for the turf in the sale?', fields: [{ id: 'a', prefix: '£' }], ans: { a: n.sale },
+    checks: [`Found ${n.disc}% first`, 'Took it OFF the price', 'Sense check: less than full price'],
+    hint: v => near(v.a, n.save) ? { type: 'Percentage slip', msg: "That's how much you SAVE. Now take it off the full price." }
+      : near(v.a, n.cost + n.save) ? { type: 'Percentage slip', msg: 'You added it on. In a sale, take it off.' } : null,
+    explain: [pctLine(n), `${money(n.cost)} − ${money(n.save)} = <b>${money(n.sale)}</b>`, `Reverse check: ${money(n.sale)} + ${money(n.save)} = ${money(n.cost)} ✅`],
+    note: `Turf in the sale = ${money(n.sale)}` },
+
+  { title: 'Fence the lawn', story: 'A fence goes all the way round the lawn.',
+    q: 'How long is the fence?', fields: [{ id: 'a' }], units: U1, unit: 'm', ans: { a: n.per },
+    checks: ['All 4 sides', 'A length, so plain m (no ²)'],
+    hint: v => near(v.a, n.lawn) ? { type: 'Area vs perimeter', msg: "That's the area. The fence is the edge: add all 4 sides." }
+      : near(v.a, n.L + n.W) ? { type: 'Missed a step', msg: "That's only 2 sides. There are 4." } : null,
+    explain: [`${n.L} + ${n.W} + ${n.L} + ${n.W} = <b>${n.per} m</b>`], note: `Fence = ${n.per} m` },
+
+  { title: 'Buy fence panels', story: 'Fence panels are <b>2 m</b> long each.',
+    q: 'How many panels do you need?', fields: [{ id: 'a' }], ans: { a: n.panels },
+    checks: ['Fence length ÷ 2', 'Sense check: about half the fence length'],
+    hint: v => near(v.a, n.per) ? { type: 'Missed a step', msg: "That's the fence length. Each panel covers 2 m, so ÷ 2." }
+      : near(v.a, n.per * 2) ? { type: 'Times instead of divide', msg: 'You multiplied. Each panel covers 2 m, so divide.' } : null,
+    explain: [`${n.per} ÷ 2 = <b>${n.panels} panels</b>`], note: `Panels = ${n.panels}` },
+
+  { title: 'Build a raised bed', story: `A raised bed (a box) is <b>${n.bedL} m</b> long, <b>1 m</b> wide and <b>0.5 m</b> deep.`,
+    q: 'What is its volume?', fields: [{ id: 'a' }], units: U1, unit: 'm³', ans: { a: n.vol },
+    checks: ['3 lengths multiplied', 'Filling a box = m³'],
+    hint: v => near(v.a, n.bedL) ? { type: 'Missed a step', msg: "That's only length × width. Volume needs all 3 lengths." }
+      : near(v.a, n.bedL + 1.5) ? { type: 'Added instead of multiplied', msg: 'You added them. Volume means multiply.' } : null,
+    explain: [`${n.bedL} × 1 × 0.5 = <b>${fmt(n.vol)} m³</b>`, '× 0.5 is the same as halving'], note: `Bed volume = ${fmt(n.vol)} m³` },
+
+  { title: 'Fill it with soil', story: 'Soil is sold in litres. <b>1 m³ = 1,000 litres</b>.',
+    q: 'How many litres fill the bed?', fields: [{ id: 'a' }], units: UL, unit: 'litres', ans: { a: n.litres },
+    checks: ['× 1,000', 'Used the volume from my notebook'],
+    hint: v => (near(v.a, n.vol * 100) || near(v.a, n.vol * 10)) ? { type: 'Conversion slip', msg: '1 m³ = 1,000 litres. Check how many zeros.' } : null,
+    explain: [`${fmt(n.vol)} × 1,000 = <b>${fmt(n.litres)} litres</b>`], note: `Bed holds ${fmt(n.litres)} litres` },
+
+  { title: 'Mix the compost', story: `Mix compost and soil in the ratio <b>1 : ${n.k}</b> (compost : soil).`,
+    q: 'How many litres of compost do you need?', fields: [{ id: 'a' }], units: UL, unit: 'litres', ans: { a: n.compost },
+    checks: [`1 : ${n.k} means ${n.k + 1} parts in total`, 'Found 1 part first'],
+    hint: v => Math.abs(v.a - n.litres / n.k) < 0.5 ? { type: 'Ratio slip', msg: `1 : ${n.k} is ${n.k + 1} parts altogether, not ${n.k}.` }
+      : near(v.a, n.soil) ? { type: 'Ratio slip', msg: "That's the soil. Compost is the 1 part." } : null,
+    explain: [`1 + ${n.k} = ${n.k + 1} parts`, `${fmt(n.litres)} ÷ ${n.k + 1} = <b>${fmt(n.compost)} litres</b> of compost`, `Soil = ${fmt(n.compost)} × ${n.k} = ${fmt(n.soil)} litres`, `Reverse check: ${fmt(n.compost)} + ${fmt(n.soil)} = ${fmt(n.litres)} ✅`],
+    note: `Compost = ${fmt(n.compost)} litres` },
+
+  { title: 'Plant the bed', story: `You plant 5 plants. Their heights in cm are: <b>${n.heights.join(', ')}</b>`,
+    q: 'Find the mode, median and mean height.', fields: [{ id: 'mode', label: 'Mode', suffix: 'cm' }, { id: 'median', label: 'Median', suffix: 'cm' }, { id: 'mean', label: 'Mean', suffix: 'cm' }],
+    ans: { mode: n.mode, median: n.median, mean: n.mean },
+    checks: ['Sorted them first', 'MOde = MOst common', 'MEDian = middle', 'MEAN = add up ÷ how many'],
+    hint: v => {
+      if (!near(v.mode, n.mode) && (near(v.mode, n.mean) || near(v.mode, n.median))) return { type: 'Mixed up averages', msg: 'Your mode is another average. MOde = the MOst common number.' };
+      if (!near(v.median, n.median) && near(v.median, n.heights[2])) return { type: 'Forgot to sort', msg: 'Sort the numbers first, then find the middle.' };
+      if (!near(v.mean, n.mean) && near(v.mean, n.hsum)) return { type: 'Missed a step', msg: "That's the total. Now ÷ 5 for the mean." };
+      if (!near(v.mean, n.mean) && (near(v.mean, n.mode) || near(v.mean, n.median))) return { type: 'Mixed up averages', msg: 'Your mean is another average. MEAN = add up ÷ how many.' };
+      return null; },
+    explain: [`Sorted: ${n.sorted.join(', ')}`, `Mode = <b>${n.mode} cm</b> (it appears twice)`, `Median = <b>${n.median} cm</b> (the middle one)`, `Mean = ${n.hsum} ÷ 5 = <b>${n.mean} cm</b>`],
+    note: `Plants: mode ${n.mode}, median ${n.median}, mean ${n.mean} cm` }
+  ];
+}
+
+function planSVG(n){
+  const pondLbl = n.pondAs === 'r' ? `r = ${n.r} m` : `${n.d} m across`;
+  const pondLine = n.pondAs === 'r'
+    ? '<line x1="112" y1="95" x2="142" y2="95" stroke="var(--ink)" stroke-width="2"/>'
+    : '<line x1="82" y1="95" x2="142" y2="95" stroke="var(--ink)" stroke-width="2"/>';
+  return `<svg class="plan" viewBox="0 0 340 210" role="img" aria-label="Garden plan: lawn ${n.L} by ${n.W} metres with a round pond, and a raised bed ${n.bedL} by 1 by 0.5 metres">
+    <rect x="14" y="24" width="208" height="142" rx="4" fill="none" stroke="var(--soil)" stroke-width="3" stroke-dasharray="7 5"/>
+    <rect x="24" y="34" width="188" height="122" rx="3" fill="var(--leaf)" fill-opacity=".28" stroke="var(--leaf)" stroke-width="2"/>
+    <circle cx="112" cy="95" r="30" fill="var(--water)" fill-opacity=".45" stroke="var(--water)" stroke-width="2"/>
+    ${pondLine}
+    <circle cx="112" cy="95" r="3" fill="var(--ink)"/>
+    <text x="112" y="142" text-anchor="middle" fill="var(--ink)" font-size="13" font-family="Lexend,sans-serif">${pondLbl}</text>
+    <text x="118" y="186" text-anchor="middle" fill="var(--ink)" font-size="14" font-weight="600" font-family="Lexend,sans-serif">${n.L} m</text>
+    <text x="6" y="100" fill="var(--ink)" font-size="14" font-weight="600" font-family="Lexend,sans-serif" transform="rotate(-90 6 100)" text-anchor="middle">${n.W} m</text>
+    <text x="118" y="16" text-anchor="middle" fill="var(--soil)" font-size="12" font-family="Lexend,sans-serif">fence</text>
+    <rect x="246" y="70" width="80" height="46" rx="3" fill="var(--soil)" fill-opacity=".45" stroke="var(--soil)" stroke-width="2"/>
+    <text x="286" y="62" text-anchor="middle" fill="var(--ink)" font-size="12" font-family="Lexend,sans-serif">raised bed</text>
+    <text x="286" y="136" text-anchor="middle" fill="var(--ink)" font-size="12" font-family="Lexend,sans-serif">${n.bedL} m × 1 m</text>
+    <text x="286" y="152" text-anchor="middle" fill="var(--ink)" font-size="12" font-family="Lexend,sans-serif">0.5 m deep</text>
+  </svg>`;
+}
+
+let N, STEPS, idx, attempt, unitSel, log;
+
+function newGame(){
+  N = gen(); STEPS = buildSteps(N); idx = 0; log = [];
+  $('#plan').innerHTML = planSVG(N);
+  $('#notes').innerHTML = '';
+  $('#bar').style.width = '0%';
+}
+
+function start(){
+  $('#intro').hidden = true; $('#summary').hidden = true;
+  $('#notebook').hidden = false; $('#stepCard').hidden = false;
+  renderStep();
+}
+
+function renderStep(){
+  const s = STEPS[idx]; attempt = 0; unitSel = null;
+  $('#stepNo').textContent = `Job ${idx + 1} of ${STEPS.length}`;
+  $('#stepTitle').textContent = s.title;
+  $('#stepStory').innerHTML = s.story;
+  $('#stepQ').textContent = s.q;
+  $('#work').value = '';
+  $('#fields').innerHTML = s.fields.map(f => `
+    <div class="field">
+      <label class="lbl" for="f_${f.id}">${f.label || 'Your answer'}</label>
+      <div class="inrow">${f.prefix ? `<span>${f.prefix}</span>` : ''}
+        <input type="text" id="f_${f.id}" inputmode="${f.type === 'frac' ? 'text' : 'decimal'}" autocomplete="off" placeholder="${f.type === 'frac' ? 'e.g. 1/4' : ''}">
+        ${f.suffix ? `<span>${f.suffix}</span>` : ''}</div>
+    </div>`).join('');
+  $('#unitBox').hidden = !s.units;
+  $('#chips').innerHTML = (s.units || []).map(u => `<button type="button" class="chip" aria-pressed="false" data-u="${u}">${u}</button>`).join('');
+  $('#checks').innerHTML = '<b>Before you check ✅</b>' + s.checks.map((c, i) => `<label><input type="checkbox" id="c_${i}"> <span>${c}</span></label>`).join('');
+  $('#fb').hidden = true; $('#fb').innerHTML = '';
+  $('#checkBtn').hidden = false; $('#nextBtn').hidden = true;
+  updateCheckBtn();
+  $('#bar').style.width = (idx / STEPS.length * 100) + '%';
+  const first = $('#fields input'); if (first && matchMedia('(min-width: 700px)').matches) first.focus();
+}
+
+function updateCheckBtn(){
+  const all = [...document.querySelectorAll('#checks input')].every(c => c.checked);
+  $('#checkBtn').disabled = !all;
+}
+
+function readVals(s){
+  const v = {};
+  for (const f of s.fields) {
+    const raw = $('#f_' + f.id).value.trim().replace(/[£,\s]/g, '');
+    if (!raw) return { err: 'Fill in every box first.' };
+    if (f.type === 'frac') {
+      const m = raw.match(/^(\d+)\/(\d+)$/);
+      if (!m || +m[2] === 0) return { err: 'Type the fraction like 1/4' };
+      v[f.id] = [+m[1], +m[2]];
+    } else {
+      const x = Number(raw);
+      if (Number.isNaN(x)) return { err: 'That box needs a number.' };
+      v[f.id] = x;
+    }
+  }
+  return { v };
+}
+
+function fieldRight(f, s, val){
+  if (f.type === 'frac') { const [p, q] = val, [a, b] = s.ans[f.id]; return p === a && q === b; }
+  return near(val, s.ans[f.id]);
+}
+
+function showFb(kind, html){ const fb = $('#fb'); fb.className = 'fb ' + kind; fb.innerHTML = html; fb.hidden = false; }
+
+function check(){
+  const s = STEPS[idx];
+  const r = readVals(s);
+  if (r.err) { showFb('bad', `<p>${r.err}</p>`); return; }
+  if (s.units && !unitSel) { showFb('bad', '<p>Pick a unit first.</p>'); return; }
+  let numsRight = true;
+  for (const f of s.fields) {
+    const ok = fieldRight(f, s, r.v[f.id]);
+    $('#f_' + f.id).className = ok ? 'ok' : 'no';
+    if (!ok) numsRight = false;
+  }
+  const unitRight = !s.units || unitSel === s.unit;
+  const working = $('#work').value.trim();
+
+  if (numsRight && unitRight) {
+    const caught = attempt > 0;
+    log[idx].result = caught ? 'caught' : 'first';
+    showFb('good', `<p><b>${caught ? 'Caught it! 🙌 Your double check worked.' : 'Spot on! ⭐'}</b></p><ul>${s.explain.filter(Boolean).map(l => `<li>${l}</li>`).join('')}</ul>`);
+    finishStep(s, working);
+    return;
+  }
+  attempt++;
+  const slip = (numsRight && !unitRight)
+    ? { type: 'Wrong unit', msg: "Number's right ✅ Unit's wrong. Length = m, area = m², volume = m³." }
+    : (s.hint(r.v) || GENERIC);
+  log[idx].slips.push(slip.type);
+
+  if (attempt === 1) {
+    document.querySelectorAll('#checks input').forEach(c => c.checked = false);
+    updateCheckBtn();
+    showFb('bad', `<p><b>Not yet. Double check 🔁</b></p><p>${slip.msg}</p><p class="muted">Your ticks have been cleared. Go through them again, then Check.</p>`);
+  } else {
+    log[idx].result = 'shown';
+    document.querySelectorAll('#fields input').forEach(i => i.className = '');
+    showFb('bad', `<p><b>Here's how it works 📖</b></p><p>${slip.msg}</p><ul>${s.explain.filter(Boolean).map(l => `<li>${l}</li>`).join('')}</ul><p class="muted">The right answer goes in your notebook so the mission carries on.</p>`);
+    finishStep(s, working);
+  }
+}
+
+function finishStep(s, working){
+  log[idx].working = working;
+  $('#notes').insertAdjacentHTML('beforeend', `<li><span>${log[idx].result === 'shown' ? '📖' : log[idx].result === 'caught' ? '🔁' : '⭐'}</span><span>${s.note}</span></li>`);
+  $('#checkBtn').hidden = true; $('#nextBtn').hidden = false;
+  $('#nextBtn').textContent = idx === STEPS.length - 1 ? 'See my results →' : 'Next job →';
+  $('#nextBtn').focus();
+}
+
+function loadHistory(){ try { return JSON.parse(localStorage.getItem('gm-history') || '[]'); } catch { return []; } }
+function saveHistory(h){ try { localStorage.setItem('gm-history', JSON.stringify(h.slice(-10))); } catch {} }
+
+function summary(){
+  $('#stepCard').hidden = true;
+  $('#bar').style.width = '100%';
+  const first = log.filter(l => l.result === 'first').length;
+  const caught = log.filter(l => l.result === 'caught').length;
+  const shown = log.filter(l => l.result === 'shown').length;
+  const tally = {};
+  log.forEach(l => l.slips.forEach(t => tally[t] = (tally[t] || 0) + 1));
+  const slipRows = Object.entries(tally).sort((a, b) => b[1] - a[1]);
+  const hist = loadHistory();
+  hist.push({ date: new Date().toLocaleDateString('en-GB'), first, caught, shown, total: STEPS.length });
+  saveHistory(hist);
+  const msg = shown === 0 && caught === 0 ? 'Perfect mission! Every job right first time 🏆'
+    : caught > 0 ? `Your double checks caught ${caught} slip${caught > 1 ? 's' : ''} 🙌 That's the habit working.`
+    : 'Every slip is a clue. Check your slip list below 👇';
+  $('#summary').innerHTML = `
+    <h2>Garden finished! 🌻</h2>
+    <p>${msg}</p>
+    <div class="stats">
+      <div class="stat"><b>${first}</b><span>⭐ first time</span></div>
+      <div class="stat"><b>${caught}</b><span>🔁 caught on 2nd go</span></div>
+      <div class="stat"><b>${shown}</b><span>📖 shown</span></div>
+    </div>
+    ${slipRows.length ? `<div><b>Your slips</b><ul class="rules">${slipRows.map(([t, c]) => `<li>${t} × ${c}</li>`).join('')}</ul></div>` : ''}
+    <div class="tablewrap"><table class="log">${STEPS.map((s, i) => `<tr><td>${log[i].result === 'shown' ? '📖' : log[i].result === 'caught' ? '🔁' : '⭐'}</td><td><b>${s.title}</b>${log[i].working ? `<br><span class="muted">${escapeHtml(log[i].working)}</span>` : ''}</td></tr>`).join('')}</table></div>
+    ${hist.length > 1 ? `<div><b>Past missions</b><ul class="rules">${hist.slice(-5).reverse().map(h => `<li>${h.date}: ⭐ ${h.first} · 🔁 ${h.caught} · 📖 ${h.shown}</li>`).join('')}</ul></div>` : ''}
+    <div class="row"><button class="btn" id="againBtn">Play again with new numbers</button></div>`;
+  $('#summary').hidden = false;
+  $('#againBtn').onclick = () => { newGame(); start(); window.scrollTo(0, 0); };
+}
+
+function escapeHtml(s){ return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+$('#checks').addEventListener('change', updateCheckBtn);
+$('#chips').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  unitSel = b.dataset.u;
+  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c === b ? 'true' : 'false'));
+});
+$('#fields').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('#checkBtn').disabled && !$('#checkBtn').hidden) check(); });
+$('#checkBtn').onclick = check;
+$('#nextBtn').onclick = () => {
+  if (idx === STEPS.length - 1) { summary(); return; }
+  idx++; renderStep(); $('#stepCard').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+};
+$('#startBtn').onclick = start;
+$('#newBtn').onclick = newGame;
+
+// log entries are created per step on demand
+const _render = renderStep;
+renderStep = function(){ log[idx] = { result: null, slips: [], working: '' }; _render(); };
+
+newGame();
+</script>
