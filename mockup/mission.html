@@ -289,13 +289,13 @@ function newGame(si,vi){
   const items=v.missions.concat([{...v.boss,boss:true,title:"Boss: the final sum",topic:"boss"}]);
   const bossAns=r2(v.boss.start-v.boss.rows.reduce((t,r)=>t+v.missions[r.k].answer*r.mul,0));
   items[items.length-1].answer=bossAns;
-  G={si,vi,set,items,NM:v.missions.length,score:100,tries:0,view:0,recheck:null,detective:false,
+  G={si,vi,set,items,NM:v.missions.length,score:100,formatSlips:0,tries:0,view:0,recheck:null,detective:false,
      used:{},pointMode:false,pointFree:false,pointFreeUsed:false,pointMsg:"",bossMsg:"",err:"",pop:"",open:null,
      S:items.map(()=>({taps:{},phase:"read",num:"",first:null,bonus:false,friend:false,opts:null,aud:null,showChecks:false})),
      W:{c:v.boss.rows.map(()=>""),total:""}};
   screen="play"; render(); window.scrollTo(0,0);
 }
-const addScore=d=>{G.score=Math.max(10,G.score+d)};
+const addScore=d=>{G.score=Math.min(100,Math.max(10,G.score+d))};
 
 /* ---------- Tokens ---------- */
 const lines=it=>it.text.map(line=>line.split(/(\[\[.*?\]\]|\s+)/).filter(Boolean).map(tok=>{
@@ -307,7 +307,10 @@ const allToks=it=>((it.shape&&it.shape.labels)||[]).map(l=>({...l,key:!!l.why}))
 const keyTotal=it=>allToks(it).filter(x=>x.key).length;
 const found=k=>allToks(G.items[k]).filter((x,n)=>x.key&&G.S[k].taps[n]==="found").length;
 const moneyOk=v=>/^-?\d+(\.\d{2})?$/.test(String(v??"").replace(/[£,\s]/g,""));
-const isRight=k=>same(num(G.S[k].num),G.items[k].answer)&&(!G.items[k].pre||moneyOk(G.S[k].num));
+const valueRight=k=>same(num(G.S[k].num),G.items[k].answer);
+const formatOk=k=>!G.items[k].pre||moneyOk(G.S[k].num);
+const isRight=k=>valueRight(k)&&formatOk(k);
+const SLIP=3;
 
 /* ---------- Render: home ---------- */
 function renderHome(){
@@ -327,7 +330,7 @@ function renderHome(){
       <li>Tap the key words for bonus points.</li>
       <li>The boss uses YOUR answers. Show your working.</li>
       <li>Wrong? It tells you how far off you are, but not where. Go detective 🕵️</li>
-      <li>💷 Money always has 2 decimal places: <b>£5.50</b>, not £5.5. Get it wrong and it counts as wrong, just like the real test.</li>
+      <li>💷 Money always has 2 decimal places: <b>£5.50</b>, not £5.5. Get it wrong and you lose 3 points: nearly right, but the real test is strict.</li>
       <li>Stuck? Use a lifeline (−${COST} each, once per mission set).</li></ol></div>
     <div class="sets">${sets}</div>`;
   app.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{const[si,vi]=b.dataset.play.split("-").map(Number);newGame(si,vi)});
@@ -401,7 +404,7 @@ function renderPlay(){
   const dots=G.items.map((_,n)=>`<span class="dot ${(G.view==="done"||n<=G.view)?'on':''}"></span>`).join("");
   const top=`<header><h1>${G.set.emoji} ${G.set.name}</h1><div class="dots">${dots}</div></header>
     <div class="bar"><button class="link" id="home">← All missions</button>
-    <div class="tally"><span class="pill">🎯 Score <b>${G.score}</b></span><span class="pill s">Lifelines <b>${Object.keys(G.used).length}</b></span><span class="pill b">Boss tries <b>${G.tries}</b></span></div></div>`;
+    <div class="tally"><span class="pill">🎯 Score <b>${G.score}</b>/100</span><span class="pill s">Lifelines <b>${Object.keys(G.used).length}</b></span><span class="pill b">Boss tries <b>${G.tries}</b></span></div></div>`;
   if(G.view==="done")return renderDone(top);
   const k=G.recheck!==null?G.recheck:G.view, it=G.items[k], st=G.S[k], T=TOPICS[it.topic];
   let b=`<span class="topic ${T.cls}">${T.name}</span>`;
@@ -425,10 +428,11 @@ function renderDone(top){
   const key=`mm-best-${G.set.id}-${G.vi}`, prev=Number(store.get(key)||0);
   if(G.score>prev)store.set(key,G.score);
   const rows=G.items.slice(0,G.NM).map((it,k)=>`<div class="row"><span><span class="topic ${TOPICS[it.topic].cls}">${TOPICS[it.topic].name}</span><br><span class="lbl">Mission ${k+1} · ${it.title}</span></span>
-    <span>first try ${G.S[k].first&&G.S[k].first.ok?'<span class="ok">✓</span>':'<span class="no">✗</span>'}</span></div>`).join("");
+    <span>first try ${G.S[k].first&&G.S[k].first.ok?'<span class="ok">✓</span>':G.S[k].first&&G.S[k].first.near?'<span style="color:var(--slip);font-weight:700">≈ nearly</span>':'<span class="no">✗</span>'}</span></div>`).join("");
   app.innerHTML=top+`<div class="card top t-boss"><span class="tag">Mission complete</span>
-    <div><p class="big">${G.score}</p><p class="lbl" style="margin:4px 0 0">final score${G.score>prev?" · new best! 🏆":prev?` · best ${prev}`:""}</p></div>
+    <div><p class="big">${G.score}<span style="font-size:1.4rem;color:var(--muted)"> / 100</span></p><p class="lbl" style="margin:4px 0 0">final score${G.score>prev?" · new best! 🏆":prev?` · best ${prev}`:""}</p></div>
     <div class="list"><div class="row"><span class="lbl">Boss tries</span><span class="val">${G.tries}</span></div>
+    ${G.formatSlips?`<div class="row"><span class="lbl">💷 Money format slips (£5.5 should be £5.50)</span><span class="val">${G.formatSlips} · −${SLIP*G.formatSlips}</span></div>`:""}
     <div class="row"><span class="lbl">Lifelines used</span><span class="val">${Object.keys(G.used).map(x=>LIFE[x].ic).join(" ")||"none"}</span></div></div>
     <div class="step">How your first answers did</div><div class="list">${rows}</div>
     <button class="btn" id="again">Play again</button>
@@ -465,7 +469,7 @@ function wire(k){
   });
   app.querySelectorAll("[data-point]").forEach(el=>el.onclick=()=>{
     keep();const id=el.dataset.point,B=G.items[G.NM];let bad=false,what="";
-    if(id[0]==="m"){const mk=+id.slice(1);bad=!isRight(mk);what=`Mission ${mk+1}`}
+    if(id[0]==="m"){const mk=+id.slice(1);bad=!valueRight(mk);what=`Mission ${mk+1}`}
     else if(id[0]==="w"){const j=+id.slice(1),r=B.rows[j];bad=!same(num(G.W.c[j]),r2(num(G.S[r.k].num)*r.mul));what=`your ${r.label.toLowerCase()} sum`}
     else if(id==="t"){const s=G.W.c.reduce((t,v)=>t+num(v),0);bad=!same(num(G.W.total),r2(s));what="your total"}
     else {bad=!same(num(G.S[G.NM].num),r2(B.start-num(G.W.total)));what="your last take-away"}
@@ -480,19 +484,20 @@ function wire(k){
     G.err="";G.pop="";G.open=null;
     if(st.phase==="read"){if(found(k)===keyTotal(it)&&!st.bonus){st.bonus=true;addScore(3)}st.phase="saved"}
     if(G.recheck!==null){G.recheck=null;G.bossMsg="";return render()}
-    st.first={ok:isRight(k)};G.view++;render();window.scrollTo(0,0);
+    st.first={ok:isRight(k),near:valueRight(k)&&!formatOk(k)};G.view++;render();window.scrollTo(0,0);
   };
   if($("boss"))$("boss").onclick=()=>{
     keep();st.num=String(st.num).trim();
     if(st.phase==="read"){if(found(k)===keyTotal(it)&&!st.bonus){st.bonus=true;addScore(3)}st.phase="saved";G.pop=""}
     if(isNaN(num(st.num))){G.bossMsg=`<p class="err">Type what's left in the last box first.</p>`;return render()}
     G.tries++;G.pointMsg="";
-    if(same(num(st.num),it.answer)&&it.pre&&!moneyOk(st.num)){
-      addScore(-5);
-      G.bossMsg=`<div class="fb slip"><h3>💷 So close! Right amount, wrong format (−5)</h3><p>Money always has <b>2 decimal places</b>. Write <b>£${num(st.num).toFixed(2)}</b>, not £${String(st.num).replace(/[£\s]/g,"")}. The real test marks this wrong!</p></div>`;
-      return render();
+    if(same(num(st.num),it.answer)&&it.pre&&!moneyOk(st.num)){G.bossSlip=true}
+    if(same(num(st.num),it.answer)){
+      G.items.slice(0,G.NM).forEach((_,mk)=>{if(G.S[mk].first&&G.S[mk].first.near)G.formatSlips++});
+      if(G.bossSlip)G.formatSlips++;
+      addScore(-SLIP*G.formatSlips);
+      G.view="done";return render();
     }
-    if(same(num(st.num),it.answer)){G.view="done";return render()}
     addScore(-10);G.detective=true;
     if(G.tries>=3&&!G.pointFree)G.pointFree=true;
     const diff=r2(num(st.num)-it.answer);
