@@ -306,7 +306,8 @@ const lines=it=>it.text.map(line=>line.split(/(\[\[.*?\]\]|\s+)/).filter(Boolean
 const allToks=it=>((it.shape&&it.shape.labels)||[]).map(l=>({...l,key:!!l.why})).concat(lines(it).flat().filter(x=>!x.space));
 const keyTotal=it=>allToks(it).filter(x=>x.key).length;
 const found=k=>allToks(G.items[k]).filter((x,n)=>x.key&&G.S[k].taps[n]==="found").length;
-const isRight=k=>same(num(G.S[k].num),G.items[k].answer);
+const moneyOk=v=>/^-?\d+(\.\d{2})?$/.test(String(v??"").replace(/[£,\s]/g,""));
+const isRight=k=>same(num(G.S[k].num),G.items[k].answer)&&(!G.items[k].pre||moneyOk(G.S[k].num));
 
 /* ---------- Render: home ---------- */
 function renderHome(){
@@ -326,6 +327,7 @@ function renderHome(){
       <li>Tap the key words for bonus points.</li>
       <li>The boss uses YOUR answers. Show your working.</li>
       <li>Wrong? It tells you how far off you are, but not where. Go detective 🕵️</li>
+      <li>💷 Money always has 2 decimal places: <b>£5.50</b>, not £5.5. Get it wrong and it counts as wrong, just like the real test.</li>
       <li>Stuck? Use a lifeline (−${COST} each, once per mission set).</li></ol></div>
     <div class="sets">${sets}</div>`;
   app.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{const[si,vi]=b.dataset.play.split("-").map(Number);newGame(si,vi)});
@@ -357,7 +359,8 @@ function lifelineBar(k){
   const btn=(id,enabled,label)=>{
     const free=id==="point"&&G.pointFree&&!G.pointFreeUsed;
     const usable=enabled&&(!G.used[id]||free);
-    return `<button class="life ${free?'free':''}" data-life="${id}" ${usable?"":"disabled"} title="${LIFE[id].name}">${LIFE[id].ic} ${label||LIFE[id].name}${free?" (free)":""}</button>`;
+    const note=id==="point"&&!it.boss?" (boss only)":free?" (free)":"";
+    return `<button class="life ${free&&it.boss?'free':''}" data-life="${id}" ${usable?"":"disabled"} title="${LIFE[id].name}">${LIFE[id].ic} ${label||LIFE[id].name}${note}</button>`;
   };
   return `<div class="step">Lifelines · −${COST} each, once per set</div><div class="lifelines">
     ${btn("friend",true)}${btn("fifty",!it.boss)}${btn("four",!it.boss)}${btn("aud",!it.boss)}${btn("point",it.boss)}</div>`;
@@ -484,6 +487,11 @@ function wire(k){
     if(st.phase==="read"){if(found(k)===keyTotal(it)&&!st.bonus){st.bonus=true;addScore(3)}st.phase="saved";G.pop=""}
     if(isNaN(num(st.num))){G.bossMsg=`<p class="err">Type what's left in the last box first.</p>`;return render()}
     G.tries++;G.pointMsg="";
+    if(same(num(st.num),it.answer)&&it.pre&&!moneyOk(st.num)){
+      addScore(-5);
+      G.bossMsg=`<div class="fb slip"><h3>💷 So close! Right amount, wrong format (−5)</h3><p>Money always has <b>2 decimal places</b>. Write <b>£${num(st.num).toFixed(2)}</b>, not £${String(st.num).replace(/[£\s]/g,"")}. The real test marks this wrong!</p></div>`;
+      return render();
+    }
     if(same(num(st.num),it.answer)){G.view="done";return render()}
     addScore(-10);G.detective=true;
     if(G.tries>=3&&!G.pointFree)G.pointFree=true;
